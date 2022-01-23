@@ -118,7 +118,7 @@ export default function UserOption({visible, ...props}){
                     <a href="https://github.com/kska32" target='_blank'><GitHubIcon/></a>
                     <a href="https://twitter.com/kska329" target='_blank'><TwitterIcon/></a>
                     <a href="mailto:kska32@gmail.com" target='_blank'><EmailIcon/></a>
-                    <a href="" target='_blank'><ThumbUpIcon/></a>
+                    <a href="https://chrome.google.com/webstore/detail/bfjdmoniilmnfleebdfpcchhjbmdffil" target='_blank'><ThumbUpIcon/></a>
                 </div>
             </div>
         </div>

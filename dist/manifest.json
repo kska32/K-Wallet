@@ -7,7 +7,8 @@
   "default_locale": "en",
   "version": "1.0.0",
   "permissions": [
-    "notifications"
+    "notifications",
+    "<all_urls>"
   ],
   "background": {
     "scripts": [
@@ -16,7 +17,7 @@
     "persistent": true
   },
   "browser_action": {
-    "default_title": "K: wallet",
+    "default_title": "K:Wallet",
     "default_icon": "icons/k128.png",
     "default_popup": "browserAction/index.html"
   },
