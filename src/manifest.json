@@ -1,0 +1,43 @@
+{
+  "manifest_version": 2,
+  "name": "K:Wallet",
+  "short_name": "K:Wallet",
+  "author": "kska32@gmail.com",
+  "description": "__MSG_description__",
+  "default_locale": "en",
+  "version": "1.0.0",
+  "permissions": [
+    "notifications",
+    "tabs",
+    "<all_urls>"
+  ],
+  "background": {
+    "scripts": [
+      "background/index.js"
+    ],
+    "persistent": true
+  },
+  "browser_action": {
+    "default_title": "K: wallet",
+    "default_icon": "icons/k128.png",
+    "default_popup": "browserAction/index.html"
+  },
+  "commands": {
+    "_execute_browser_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+K",
+        "linux": "Ctrl+Shift+K",
+        "windows": "Alt+Shift+K",
+        "mac": "Alt+Shift+K"
+      }
+    }
+  },
+  "icons": {
+    "16": "icons/k16.png",
+    "48": "icons/k64.png",
+    "128": "icons/k128.png"
+  },
+  "web_accessible_resources": [
+    "images/*"
+  ]
+}

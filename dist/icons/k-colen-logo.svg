@@ -1,0 +1,24 @@
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 126.23 103.11">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #231f20;
+      }
+
+      .cls-2 {
+        fill: #00aeef;
+      }
+    </style>
+  </defs>
+  <title>k-colen-logo</title>
+  <g>
+    <g>
+      <polygon class="cls-1" points="64.91 102.11 38.03 56.23 23.01 71.57 23.01 102.11 1 102.11 1 1 23.01 1 23.01 43.44 62 1 91.7 1 53.3 40.72 93.21 102.11 64.91 102.11"/>
+      <path class="cls-2" d="M90.23,14.45,52.91,53.05l39.35,60.5H66.37L39.12,67,22.9,83.6v30h-20V14.45h20v44l40.42-44H90.23m4.71-2H62.45l-.6.64L24.9,53.32V12.45H.89v103.1h24V84.42L38.72,70.31l25.92,44.25.58,1H95.94l-2-3.09L55.46,53.29,91.67,15.84l3.27-3.39Z" transform="translate(-0.89 -12.45)"/>
+    </g>
+    <g>
+      <path class="cls-1" d="M105.12,114.55v-21h21v21Zm0-52.8v-21h21v21Z" transform="translate(-0.89 -12.45)"/>
+      <path class="cls-2" d="M125.11,41.76v19h-19v-19h19m0,52.8v19h-19v-19h19m2-54.8h-23v23h23v-23Zm0,52.8h-23v23h23v-23Z" transform="translate(-0.89 -12.45)"/>
+    </g>
+  </g>
+</svg>
