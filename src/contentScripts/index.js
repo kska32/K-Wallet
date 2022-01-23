@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import 'semantic-ui-css/semantic.min.css';
 import './components/variable.scss';
 
-const contentScriptID = 'kadena-wallet';
+const contentScriptID = 'K:Wallet';
 
 document.body.style=`
     margin: 0;

@@ -35719,7 +35719,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var contentScriptID = 'kadena-wallet';
+var contentScriptID = 'K:Wallet';
 document.body.style = "\n    margin: 0;\n    padding: 0;\n    background-color: white;\n    display: flex;\n    flex-flow: row wrap;\n    width: 100%;\n";
 var theapps = document.querySelectorAll("#".concat(contentScriptID));
 theapps.forEach(function (theapp) {
