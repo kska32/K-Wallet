@@ -1,6 +1,5 @@
 import {atom,selector} from 'recoil';
 import C from "../background/constant";
-import {ss} from "../background/utils";
 
 const promiseSendMessage = (msg) => {
     return new window.Promise((resolve,reject)=>{
