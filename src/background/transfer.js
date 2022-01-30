@@ -1,8 +1,4 @@
 import Pact from 'pact-lang-api';
-import C from "./constant";
-const Promise = window.Promise;
-const Set = window.Set;
-
 
 export default function({   
     senderAccountAddr,
@@ -45,44 +41,21 @@ export default function({
     ttl = Number(ttl);
 
     let gasStationAccount = "free-x-chain-gas";
-    const tids = [];
+    const clears = [];
 
     if(networkId.includes('testnet')){
         xGasPrice = 0.000000001;
     }
 
     const clearAllIntervals = () => {
-        while(tids.length > 0){
-            clearInterval(tids.pop());
+        while(clears.length > 0){
+            clears.pop()();
         }
     }
 
     const creationTime = () => (Math.round(Date.now() / 1000) - 15);
     const getPubKey = (accAddr="") => (accAddr.toLowerCase().includes("k:") ? accAddr.split(":")[1] : accAddr);
     const formatAmount = (amount) => (Math.floor(amount * 1e8) / 1e8).toFixed(8);
-
-    const listen = async (execToListenCb, breakCondCb, maxDelay=C.LISTEN_MAX_DELAY, eachDelay=C.LISTEN_EACH_DELAY) => {
-        let tid = null;
-        let ts = Date.now();
-    
-        return new Promise((resolve)=>{
-            const fn = async ()=>{
-                const res = await execToListenCb();
-                if(breakCondCb(res)){
-                    clearInterval(tid);
-                    return resolve(res);
-                }else{
-                    if(Date.now() - ts >= maxDelay){
-                        clearInterval(tid);
-                        return resolve("TIMEOUT");
-                    }
-                }
-            }
-            fn();
-            tid = setInterval(fn, eachDelay);
-            tids.push(tid);
-         });
-    }
 
 
     const initAccount = async (chainId = 0, keys = [senderAccountAddr], pred = "keys-all")=>{
@@ -169,26 +142,23 @@ export default function({
         
         let res = await Pact.fetch.send(cmds, hostAddrCp(senderChainId));
         if(res.requestKeys === undefined) throw res;
-
         return res;
     }
 
-    const listenReqkey = async (reqKey, chainId) => {
-            const listenResult = await listen(
-                ()=>(Pact.fetch.poll({requestKeys: [reqKey]}, hostAddrCp(chainId))), 
-                (r)=>(Object.keys(r).length !== 0),
-                C.LISTEN_MAX_DELAY,
-                C.LISTEN_EACH_DELAY
-            ); 
 
-            const respond = listenResult[reqKey];
-            if(respond?.result?.status === 'failure'){
-                throw respond.result.error.message;
-            }else if(listenResult === "TIMEOUT"){
-                throw listenResult;
+    const selectReqkey = async (reqKey, chainId, step) => {
+        let selectResult = await Pact.fetch.poll({requestKeys: [reqKey]}, hostAddrCp(chainId));
+        if(Object.keys(selectResult).length !== 0){
+            const reqkeyResult = selectResult[reqKey];
+            if(reqkeyResult?.result?.status === 'failure'){
+                throw reqkeyResult.result.error.message;
             }else{
-                return respond;
+                const rt = selectResult[reqKey];
+                return rt !== undefined ? rt : null;
             }
+        }else{
+            return null;
+        }
     }
 
     const createSpvCmd = (reqkeyResult) => {
@@ -208,14 +178,19 @@ export default function({
         }
     }
 
-    const getProof = async (spvCmd) => {
-            let proof = await listen(
-                ()=>(Pact.fetch.spv(spvCmd, hostAddrCp(spvCmd.sourceChainId))),
-                (r)=>(r != 'SPV target not reachable: target chain not reachable. Chainweb instance is too young'),
-                C.LISTEN_MAX_DELAY,
-                C.LISTEN_EACH_DELAY
-            );
-            return proof;
+    const fetchProof = async (spvCmd) => {
+        let proof = await Pact.fetch.spv(spvCmd, hostAddrCp(spvCmd.sourceChainId));
+        if(proof !== 'SPV target not reachable: target chain not reachable. Chainweb instance is too young'){
+            try{
+                const jsonstr = atob(proof);
+                const obj = JSON.parse(jsonstr);
+                return obj.algorithm ? proof : null;
+            }catch(err){
+                return null;
+            }
+        }else{
+            return null;
+        }
     }
 
     const continueTransfer = async (
@@ -267,38 +242,21 @@ export default function({
     ) => {
         return Promise.all((new Array(20)).fill(0).map((v,i)=>{
                 return getAcctDetails(accountAddr, i)
-        }));
+        })).catch((err)=>{
+            throw err;
+        })
     }
 
-    const searchReqKey = async (reqKey) => {
-        return Promise.any(new Array(20).fill(0).map((v,i)=>{
-            return new Promise((resolve, reject)=>{
-                return listenReqkey(reqKey, i, hostAddrCp).then((r)=>{
-                    if(r?.result?.status === 'success'){
-                        clearAllIntervals();
-                        return resolve(r);
-                    }else if(r?.result?.status === 'failure'){
-                        clearAllIntervals();
-                        return reject(r);
-                    }else{
-                        return reject(r);
-                    }
-                })
-            })
-        }));
-    }
 
     return {
         initAccount,
         transferCrosschain,
         transferSamechain,
-        listenReqkey,
+        selectReqkey,
         createSpvCmd,
-        getProof,
+        fetchProof,
         continueTransfer,
-        listen,
         getAcctDetails,
-        searchReqKey,
         getFullAcctDetails
     }
 

@@ -12,7 +12,8 @@
     "env": {
         "browser": true,
         "node": true,
-        "webextensions": true
+        "webextensions": true,
+        "es6": true
     },
     "rules": {
         "linebreak-style": 0,

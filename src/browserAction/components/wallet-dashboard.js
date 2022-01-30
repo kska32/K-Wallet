@@ -2,11 +2,10 @@ import React, {useState, useLayoutEffect, useCallback, useRef} from "react";
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import styled from "styled-components";
 import C from "../../background/constant";
-import produce from "immer";
 
 import {
     vNetworkIdX, vLockupX, vAccAddrX, vAccountDetailsX, 
-    vKDAprice, vPageNumX, vIsLoadingX, vSidebarOpenedX
+    vPageNumX, vIsLoadingX, vSidebarOpenedX
 } from "../atoms.js";
 
 
@@ -19,7 +18,6 @@ import Sidebar from "./sidebar";
 
 import {CopiesButton} from "./special-buttons";
 import MenuIcon from '@material-ui/icons/Menu';
-import SettingsRoundedIcon from '@material-ui/icons/SettingsRounded';
 
 import CallMadeIcon from '@material-ui/icons/CallMade';
 import kadenaLogo from "../images/k64.png";
@@ -32,14 +30,27 @@ import TimelineIcon from '@material-ui/icons/Timeline';
 import ExtensionSharpIcon from '@material-ui/icons/ExtensionSharp';
 
 const Wrapper = styled.div`
-    position: relative;
+    position: absolute;
     width: 100%;
     height: 100%;
+    left: 0px;
+    top: 0px;
 
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
     align-items: center;
+
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.24s;
+
+    ${
+        p => p.visible && `
+            pointer-events: initial;
+            opacity: 1;
+        `
+    }
 
     >div{
         position: relative;
@@ -99,7 +110,7 @@ const Body = styled.div`
 const AccountInfo = styled.div`
     position: relative;
     display: flex;
-    background-color: #fff;
+    background-color: #ffffee;
     border-top: thin solid white;
     z-index: 365;
     width: 100%;
@@ -382,14 +393,15 @@ const NetDropdownWrapper = styled.div`
                 }
 
                 &:after{
-                    content: '◿';
+                    content: '';
                     position: absolute;
                     right: 10px;
                     top: 50%;
-                    transform: translateY(-50%);
-                    font-size: 14px;
-                    color: #333;
+                    transform: translateY(-25%);
                     font-weight: 600;
+                    border: 4px solid transparent;
+                    border-top: 5px solid rgba(0,0,0,0.66);
+                    border-radius: 2px;
                 }
                 
             }
@@ -472,7 +484,6 @@ const NetDropdown = ({defaultValue, options, onChange}) => {
                 setOpened(false);
             }
         }
-
         document.body.addEventListener('click', clickHandle);
 
         return ()=>{
@@ -578,6 +589,7 @@ export function LockProgressBar(){
             if(msg.type === C.FMSG_LOCK_PROGRESS_STATE){
                 setPstate(msg.value);
             }
+            return true;
         };
         chrome.runtime.onMessage.addListener(fn);
 
@@ -592,45 +604,44 @@ export function LockProgressBar(){
 }
 
 
-export default function(props){
+export default function({visible}){
     const accountAddr = useRecoilValue(vAccAddrX);
-    const [accountDetails,setAccountDetails] = useRecoilState(vAccountDetailsX);
-    const [kdaPrice,setKdaPrice] = useRecoilState(vKDAprice);
+    const accountDetails = useRecoilValue(vAccountDetailsX);
     const setLoading = useSetRecoilState(vIsLoadingX);
     const lockUp = useSetRecoilState(vLockupX);
     const [interActionNo, setInterActionNo] = useRecoilState(vPageNumX);
     const [networkId, setNetworkId] = useRecoilState(vNetworkIdX);
     const [sidebarOpened, setSidebarOpened] = useRecoilState(vSidebarOpenedX);
+    const [kdaPrice, setKdaPrice] = useState(0.00);
 
     useLayoutEffect(()=>{
         chrome.runtime.onMessage.addListener((message,sender,sendResponse)=>{
             let {type,key,value} = message;
             switch(type){
-                case C.MSG_GET_KDA_PRICE: {
+                case C.FMSG_KDA_PRICE_UPDATE: {
                     setKdaPrice(value);
                     break;
                 }
             }
+            return true;
         })
     },[]);
 
     const onNetworkChange = useCallback((v)=>{
+        setLoading({opened: true, text: null});
         setNetworkId(v);
-        refreshAccountDetails();
-    },[accountAddr]);
+        //refreshAccountDetails();
+    },[accountAddr, networkId]);
 
     const refreshAccountDetails = useCallback(()=>{
-        setLoading(produce((s)=>{ s.opened = true; s.text = null; }));
+        setLoading({opened: true, text: null});
         chrome.runtime.sendMessage({
             type: C.MSG_GET_ACCOUNT_DETAILS, 
             accountId: accountAddr
-        }, (res)=>{
-            setAccountDetails(res);
-            setLoading(produce((s)=>{ s.opened = false; s.text = null; }));
         });       
-    },[accountAddr]);
+    },[accountAddr, networkId]);
 
-    return <Wrapper>
+    return <Wrapper visible={visible}>
        <Body>
             <AccountInfo>
                 <span className='MenuButton' onClick={()=>setSidebarOpened(true)}>

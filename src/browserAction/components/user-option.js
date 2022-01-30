@@ -112,11 +112,10 @@ export default function UserOption({visible, ...props}){
                 <div>k:b8559cae02d291fbff2425511b040aaae606bd8e5edf6a2c16fe7529f6ab77f2</div>
                 <div>
                     I am a big fan of kadena,<br/>
-                    Hope many people like this wallet Ext.
+                    Hope many people like this wallet Ext.<br/>
                 </div>
                 <div>
                     <a href="https://github.com/kska32" target='_blank'><GitHubIcon/></a>
-                    <a href="https://twitter.com/kska329" target='_blank'><TwitterIcon/></a>
                     <a href="mailto:kska32@gmail.com" target='_blank'><EmailIcon/></a>
                     <a href="https://chrome.google.com/webstore/detail/bfjdmoniilmnfleebdfpcchhjbmdffil" target='_blank'><ThumbUpIcon/></a>
                 </div>

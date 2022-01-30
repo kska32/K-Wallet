@@ -1,10 +1,9 @@
 import React,{Suspense, useState, useCallback, useLayoutEffect} from "react";
 import {RecoilRoot, useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {
-    vPageNumX, vPasswordX, vHasAccount, vIsLoadingX, 
-    vAccountDetailsX, vGlobalErrorDataX, vConfirmDataX,
-    vDeleteDataX, vReceiverAddrListX, vImportPrikeyPageX, 
-    vStateX
+    vPageNumX, vPasswordX, vHasAccount, vIsLoadingX,  
+    vGlobalErrorDataX, vConfirmDataX, vDeleteDataX, 
+    vReceiverAddrListX, vState
 } from "./atoms.js";
 import Button from '@material-ui/core/Button';
 import C from "../background/constant";
@@ -23,6 +22,7 @@ import ImportWalletStepper from "./components/import-wallet-stepper.js";
 import circlesSvg from "./images/circles.svg";
 import ErrorOutlineOutlinedIcon from '@material-ui/icons/ErrorOutlineOutlined';
 import CloseOutlinedIcon from '@material-ui/icons/CloseOutlined';
+
 
 const Wrapper = styled.div`
     position: relative;
@@ -338,6 +338,7 @@ const AlertModal = ()=>{
 
 const ConfirmModal = ()=>{
     const [confirmData, setConfirmData] = useRecoilState(vConfirmDataX);
+    const setLoading = useSetRecoilState(vIsLoadingX);
 
     const close = useCallback(()=>{
         setConfirmData(produce((s)=>{
@@ -347,9 +348,11 @@ const ConfirmModal = ()=>{
 
     const confirm = useCallback(()=>{
         setConfirmData(produce((s)=>{
+            s.opened = false;
+            s.message = null;
             s.confirmed = true;
-        }));
-    }, [])
+        }));            
+    }, []);
 
     return <ModalStyle visible={confirmData.opened}>
         <div>
@@ -397,22 +400,12 @@ const DeleteModal = (props) => {
                 privateKey: key
             }, ({success, error})=>{
                 if(success === true){
-                    setLoading(produce((s)=>{
-                        s.opened = true;
-                        s.text = null;
-                    }));
                     chrome.runtime.sendMessage({
                         type: C.MSG_REMOVE_ACCOUNT,
                         removeKey: deleteData.publicKey
                     });
                     setKey('');
                     setInvalidKey(null);
-                    setDeleteData(produce((s)=>{
-                        s.success = null;
-                        s.privateKey = '';
-                        s.publicKey = '';
-                        s.opened = false;
-                    }));
                 }else{
                     setLoading(produce((s)=>{
                         s.opened = false;
@@ -423,7 +416,6 @@ const DeleteModal = (props) => {
             });
         }else{
             setInvalidKey(true);
-
             clearTimeout(tid);
             setTid(setTimeout(()=>{
                 setInvalidKey(false);
@@ -459,42 +451,21 @@ const DeleteModal = (props) => {
 
 
 export const Main = (props)=>{
-    const setRootState = useSetRecoilState(vStateX);
+    const syncBackgroundState = useSetRecoilState(vState);
     const [pageNum, setPageNum] = useRecoilState(vPageNumX);
     const hasAccount = useRecoilValue(vHasAccount);
-    const [password, setPassword] = useRecoilState(vPasswordX);
+    const password = useRecoilValue(vPasswordX);
     const [isLoading, setLoading] = useRecoilState(vIsLoadingX);
-    const setAccountDetails = useSetRecoilState(vAccountDetailsX);
     const setGErrData = useSetRecoilState(vGlobalErrorDataX);
     const setReceiverAddrList = useSetRecoilState(vReceiverAddrListX);
-    const setConfirmData = useSetRecoilState(vConfirmDataX);
-    const setImportPriKeyPage = useSetRecoilState(vImportPrikeyPageX);
 
     useLayoutEffect(()=>{
         chrome.runtime.onMessage.addListener((msg)=>{
             const {type} = msg;
-
-            const updateRender = (msg)=>{
-                setRootState((s)=>{
-                    delete msg.type;
-                    const a = {
-                        ...s, ...msg, 
-                        isLoading: {
-                            opened: false,
-                            text: null
-                        }
-                    }
-                    return a;
-                });
-            }
-
             switch(type){
-                case C.FMSG_ACCOUNT_DETAILS_REFRESH: {
-                    setAccountDetails(msg.data);
-                    setLoading(produce((s)=>{
-                        s.opened = false;
-                        s.text = null;
-                    }));
+                case C.FMSG_SYNC_BACKGROUND_STATE:{
+                    delete msg.type;
+                    syncBackgroundState((s)=>({...s, ...msg}));
                     break;
                 }
                 case C.FMSG_TRANSFER_PROGRESS: {
@@ -503,61 +474,19 @@ export const Main = (props)=>{
                             s.opened = true;
                             s.message = msg.value.lastError;
                         }));
+                        setLoading({opened: false, text: null});
                     }
-                    break;
-                }
-                case C.FMSG_VERIFY_PASSWORD_SUCCESS:
-                case C.FMSG_SAVE_PASS_SUCCESS: {
-                    setRootState((s)=>{
-                        delete msg.type;
-                        const a = {
-                            ...s, ...msg, isLoading: {opened: false, text:null}, pageNum: 8
-                        };
-                        const b = {
-                            mnemonicR: [], 
-                            mnemonic01: [], 
-                            mnemonic02: [],
-                            mnemonic03: [],
-                            passwordConfirmR: "",
-                            passwordConfirm: "",
-                            passwordR: ""
-                        };
-                        return {...a, ...b};
-                    });
-                    break;
-                }
-                case C.FMSG_REMOVE_ACCOUNT_SUCCESS:
-                case C.FMSG_CHANGE_SELECTED_ACCOUNT_SUCCESS: {
-                    updateRender(msg);
                     break;
                 }
                 case C.FMSG_RECEIVER_ADDR_LIST_UPDATED: {
                     setReceiverAddrList(msg.receiverAddrList);
                     break;
                 }
-                case C.FMSG_GENERATE_RANDOM_KEYPAIR: {
-                    updateRender(msg);
-                    setConfirmData(produce((s)=>{
-                        s.confirmed = null;
-                        s.opened = false;
-                    }));
-                    break;
-                }
-                case C.FMSG_IMPORT_ACCOUNT_SUCCESS: {
-                    updateRender(msg);
-                    setImportPriKeyPage(produce((s)=>{
-                        s.opened = false;
-                    }))
-                    break;
-                }
-                case C.FMSG_LOCK_UP_SUCCESS: {
-                    updateRender(msg);
-                    break;
-                }
             }
+
+            return true;
         });
     }, []);
-
 
     useLayoutEffect(()=>{
         if(hasAccount === true){
@@ -569,13 +498,12 @@ export const Main = (props)=>{
         }
     }, [hasAccount, password]);
 
-
     return <Wrapper>
         {pageNum === 0 && <CreateWalletInit />}
         {pageNum >= 1 && pageNum <= 3 && <CreateWalletStepper />}
-        {pageNum === 5 && <CreateWalletUnlock />}
         {pageNum >= 6 && pageNum <= 7 && <ImportWalletStepper />}
-        {pageNum >= 8 && <WalletDashboard />}
+        <WalletDashboard visible={pageNum >= 8}/>
+        <CreateWalletUnlock visible={pageNum === 5}/>
         <LoadingBox isLoading={isLoading.opened} loadingText={isLoading.text}/>
         <AlertModal />
         <ConfirmModal />
@@ -592,4 +520,5 @@ ReactDOM.render(
     </Suspense>, 
     document.getElementById('root')
 );
+
 

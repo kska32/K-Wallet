@@ -20,7 +20,7 @@ function createStore(collection){
                         }).then(()=>true);
                 },
                 "getItem": (key) => {
-                        return new window.Promise((resolve)=>{
+                        return new Promise((resolve)=>{
                                 return db[collection].get(key).then((res)=>{
                                         resolve(res)
                                 }).catch((err)=>{
@@ -83,4 +83,10 @@ export const reqkeysDB = createStore("request-keys");
 export const accountAddrsDB = createStore("account-addresses");
 export const userOptionsDB = createStore("user-options");
 
+export const senderReqkeyAlarmDB = createStore("sender-reqkey-adb");
+export const proofAlarmDB = createStore('proof-adb');
+export const continueTransferAlarmDB = createStore('ct-transfer-adb');
+export const receiverReqkeyAlarmDB = createStore('receiver-reqkey-adb');
 
+export const alarmDbs = [senderReqkeyAlarmDB, proofAlarmDB, continueTransferAlarmDB, receiverReqkeyAlarmDB];
+export const alarmDbsStr = ['senderReqkeyAlarmDB', 'proofAlarmDB', 'continueTransferAlarmDB', 'receiverReqkeyAlarmDB'];

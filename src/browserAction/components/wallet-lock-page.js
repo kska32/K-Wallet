@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from "react";
+import React, {useState, useCallback, useLayoutEffect} from "react";
 import styled from "styled-components";
 import C from "../../background/constant";
 import Button from '@material-ui/core/Button';
@@ -12,7 +12,9 @@ import produce from "immer";
 
 
 const Wrapper = styled.div`
-    position: relative;
+    position: absolute;
+    left: 0px;
+    top: 0px;
     width: 100%;
     height: 100%;
     display: flex;
@@ -21,6 +23,18 @@ const Wrapper = styled.div`
     align-items: center;
     background-color: #fff;
     justify-content: space-around;
+
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.24s;
+
+    ${
+        p=>p.visible && `
+            pointer-events: initial;
+            opacity: 1;
+
+        `
+    }
 `;
 
 const KadenaLogoBox = styled.div`
@@ -123,37 +137,44 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function(props){
+export default function({visible}){
     const classes = useStyles();
     const [pass, setPass] = useState('');
     const [isIncorrect, setIncorrect] = useState(false);
     const setLoading = useSetRecoilState(vIsLoadingX);
 
     const verifyPassword = useCallback(async(password)=>{
-        setLoading(produce((s)=>{ s.opened = true; s.text = null; }));
+        setLoading(produce((s)=>{ s.opened = true;}));
         chrome.runtime.sendMessage({ 
             type: C.MSG_VERIFY_PASSWORD, 
             value: {password} 
-        }, (keys)=>{
-            if(keys?.success !== true){
-                setLoading(produce((s)=>{ s.opened = false; s.text = null; }));
+        }, (res)=>{
+            if(chrome.runtime.lastError){
+                //console.error('lock-page:', chrome.runtime.lastError.message);
+            } 
+            setLoading(produce((s)=>{ s.opened = false;}));
+            if(res?.success === false){
                 setIncorrect(true);
             }
         });
     }, []);
 
-    return <Wrapper>
+    useLayoutEffect(()=>{
+        if(visible !== true) setPass('');
+    },[visible])
+
+    return <Wrapper visible={visible}>
         <KadenaLogoBox />
         <ButtonGroup>
             <div>
                 <TextField
                     label="Enter Password"
-                    defaultValue=""
                     className={classes.textField}
                     margin="dense"
                     variant="outlined"
                     size="medium"
                     type="password"
+                    value={pass}
                     onChange={(e)=>{
                         setPass(e.target.value);
                         setIncorrect(false); 

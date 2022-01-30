@@ -103,30 +103,11 @@ const Wrapper = styled.div`
 `;
 
 export default function({errorData, visible}){
-    const [reqkeysData, setReqkeysData] = useRecoilState(vRecentReqkeysData);
-    const setLoading = useSetRecoilState(vIsLoadingX);
     const setErrorData = useSetRecoilState(vErrorDataX);
-
-    const errorHandler = useCallback((s,o)=>{
-        const {details, message, xtransfer} = o;
-
-        chrome.runtime.sendMessage({
-            type: C.MSG_JUST_TRANSFER,
-            data: details.param,
-            step: 2,
-            contReqkey: o.details.reqKey
-        });
-
-        s.opened = false;
-    
-        return s;
-    },[]);
-
 
     const hidden = useMemo(()=>{
         const cc =[
             "Insufficient funds",
-            "TIMEOUT",
             "resumePact: pact completed"
         ]
         return !cc.some(v=>(errorData?.message??'').includes(v));
@@ -143,7 +124,16 @@ export default function({errorData, visible}){
             {
                 hidden && <div className='confirm'>
                     <Button variant="contained" color="primary" onClick={()=>{ 
-                        setErrorData(produce(s=>errorHandler(s, original(s))));
+                        setErrorData(produce((s)=>{
+                            s.opened = false;
+                            s.message = null;
+                            s.xtransfer = null;
+                            s.details = null;
+                        }));
+                        chrome.runtime.sendMessage({
+                            type: C.MSG_CONTINUE_ERROR_TRANSFER,
+                            reqkey: errorData.details.reqKey
+                        });
                     }}>Continue</Button>
                 </div>
             }

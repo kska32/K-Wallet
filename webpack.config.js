@@ -52,7 +52,8 @@ module.exports = {
             chunks: ['contentScripts'],
             filename: 'contentScripts/index.html',
             template: 'src/browserAction/index.html'
-        }),
+        })
+        /*
         isDev() ? ()=>new ChromeExtensionReloader({
                 port: 9090,
                 reloadPage: true, 
@@ -61,6 +62,7 @@ module.exports = {
                     background: 'background'
                 }
         }) : ()=>new NothingPlugin()
+        */
     ],
     output: {
         filename: t => t.chunk.name + '/index.js',

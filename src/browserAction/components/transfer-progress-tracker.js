@@ -3,11 +3,10 @@ import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import styled from "styled-components";
 import C from "../../background/constant";
 import moment from "moment";
-import {vRecentReqkeysDataX, vAccountDetailsX, vAccAddrX, vErrorDataX, vInfoDataX} from "../atoms.js";
+import {vRecentReqkeysDataX, vErrorDataX, vInfoDataX} from "../atoms.js";
 import {VisibleStyleComp} from "./styled.comp.js";
 import ErrorHandle from "./error-handle";
-import BuildOutlinedIcon from '@material-ui/icons/BuildOutlined';
-import {original, produce} from 'immer';
+import produce from 'immer';
 
 import ErrorOutlineOutlinedIcon from '@material-ui/icons/ErrorOutlineOutlined';
 import NewReleasesOutlinedIcon from '@material-ui/icons/NewReleasesOutlined';
@@ -119,6 +118,7 @@ const StepProgressBarStyle = styled.div`
 
 
         &:nth-of-type(even){
+            /* errored */
             opacity: 0;
             background-color: transparent;
             color: black;
@@ -129,6 +129,11 @@ const StepProgressBarStyle = styled.div`
                 opacity: 0;
                 pointer-events: none;
                 cursor: pointer;
+            }
+
+            
+            &:not(:last-of-type){
+                animation: grow-red 1.666666s ease-in infinite;
             }
         }
 
@@ -156,6 +161,11 @@ const StepProgressBarStyle = styled.div`
                         opacity: 0;
                         pointer-events: none;
                     }
+                }
+            }
+            &.laststep{
+                &:not(:last-of-type){
+                    animation: grow-yellow 1.666666s ease-in infinite;
                 }
             }
         }
@@ -204,6 +214,14 @@ const StepProgressBarStyle = styled.div`
                 cursor: pointer; 
             }
         }
+        @keyframes grow-yellow {
+            0%{ box-shadow: 0px 0px 0px 1px #009688, 0px 0px 0px 2px rgba(255,255,0, 0.66); }
+            100%{ box-shadow: 0px 0px 0px 1px #009688, 0px 0px 0px 30px rgba(255,255,255, 0); }
+        }
+        @keyframes grow-red {
+            0%{ box-shadow: 0px 0px 0px 1px #009688, 0px 0px 0px 2px rgba(255,0,0, 0.66); }
+            100%{ box-shadow: 0px 0px 0px 1px #009688, 0px 0px 0px 30px rgba(255,255,255, 0); }
+        }
 
         ${(p)=>{
             if(p.lastStepErrored === true){
@@ -231,11 +249,24 @@ const interrupted = (d, tp = 1000 * 60 * 3) =>
                      d.success === false && d.finished === false && 
                             d.tstep > d.step && d.lastError === null;
 
+const itemFilter = (d) => {
+    /*
+    if(d.lastError === null) return d;
+    if(d.lastError.includes('pact completed')){
+        return {
+            ...d, lastError: null,
+            step: 5, finished: true,
+            success: true
+        };
+    }
+    */
+    return d;
+}
 
 function StepProgressBar({item}){
     const isInit = React.useRef(false);
-    const [data, setData] = useState(item);
-    const [step, setStep] = useState(vstep(data));// converted step.
+    const [data, setData] = useState(itemFilter(item));
+    const [step, setStep] = useState(vstep(data));
     const [steplen] = useState(tstep(data));
     const [reqkey] = useState(data.reqKey);
     const setErrorDataX = useSetRecoilState(vErrorDataX);
@@ -250,7 +281,6 @@ function StepProgressBar({item}){
     useLayoutEffect(()=>{
         const listenerHandler = (message,sender,sendResponse)=>{
             let {type,key,value} = message;
-            
             switch(type){
                 case C.FMSG_TRANSFER_PROGRESS: {
                     if(reqkey === key){
@@ -261,13 +291,12 @@ function StepProgressBar({item}){
                     break;
                 }
             }
+            return true;
         }
-
         if(reqkey !== null && isInit.current === false){
             isInit.current = true;
             chrome.runtime.onMessage.addListener(listenerHandler);
         }
-
         return ()=>{
             chrome.runtime.onMessage.removeListener(listenerHandler);
         }
@@ -285,6 +314,7 @@ function StepProgressBar({item}){
                 <div></div>
                 {
                     new Array(steplen).fill(0).map((v,i,r)=>{
+
                         if(i % 2){
                             //gots error
                             return <span key={i} 
@@ -347,6 +377,9 @@ const StepInfosItem = styled.div`
     border-radius: 8px;
     background-color: #fff;
     box-shadow: 0px 1px 5px 3px rgba(0,0,0,0.12);
+    opacity: 1;
+    transition: all 0.18s;
+    z-index: 1;
 
     &:nth-last-of-type(2){
         margin-bottom: 108px;
@@ -471,7 +504,7 @@ const StepInfosItem = styled.div`
 `;
 
 const NoTransaction = styled.div`
-    position: fixed;
+    position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
@@ -493,7 +526,6 @@ const NoTransaction = styled.div`
 
     ${p=>p.visible===true && `
         opacity: 1;
-        pointer-events: initial;
     `}
 
     svg{
@@ -544,6 +576,7 @@ export default React.memo(({visible})=>{
     const errorData = useRecoilValue(vErrorDataX);
     const [infoData, setInfoData] = useRecoilState(vInfoDataX);
     const rootRef = useRef();
+    const itemRefs = useRef([]);
 
     const onLoadMore = useCallback(()=>{
         if(hasMore){
@@ -565,12 +598,13 @@ export default React.memo(({visible})=>{
         return  `https://explorer.chainweb.com/${networkName}/tx/${reqKey}`;
     },[])
 
+
     return <Transactions visible={visible}>
             <div>
                 <Wrapper>
                 {
-                    reqkeysData.map((v,i)=>{
-                        return <StepInfosItem key={v.key}>
+                    reqkeysData.map((v,i,a)=>{
+                        return <StepInfosItem key={v.key} ref={r=>itemRefs.current[i]=r}>
                             <div>
                                 <span>Rk: {(v?.reqKey??'').slice(0,8)}</span>
                                 <span>{moment(v.timestamp).format("LL - LTS")}</span>
@@ -581,7 +615,10 @@ export default React.memo(({visible})=>{
                                             deleteKey: v.reqKey
                                         },(res)=>{
                                             if(res === true){
-                                                setReqkeysData(produce((s)=>{ s.splice(i,1) }));
+                                                itemRefs.current[i].style='margin-top: -116px; opacity: 0; z-index:0;';
+                                                setTimeout(()=>{
+                                                    setReqkeysData(produce((s)=>{ s.splice(i,1) }));
+                                                },180); 
                                             }
                                         });
                                     }

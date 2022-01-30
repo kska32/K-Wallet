@@ -8,8 +8,8 @@ import Button from '@material-ui/core/Button';
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {
-    vAccountDetailsX, vTransferOptX, vConfirmOpenedX, 
-    vSenderAddrListX, vReceiverAddrListX
+    vAccountDetailsX, vTransferOptX, vTransferConfirmOpenedX, 
+    vSenderAddrListX, vReceiverAddrListX, vNetworkIdX
 } from '../atoms';
 import TransferConfirm from "./confirm-transfer";
 import {VisibleStyleComp} from "./styled.comp.js";
@@ -271,10 +271,11 @@ const Wrapper = styled.div`
 
 export default function CoinSender({visible}){
     const [transferOpt, setTransferOpt] = useRecoilState(vTransferOptX); 
-    const [confirmOpened, setConfirmOpened] = useRecoilState(vConfirmOpenedX);
+    const [transferConfirmOpened, setTransferConfirmOpened] = useRecoilState(vTransferConfirmOpenedX);
     const [senderAddrList, setSenderAddrList] = useRecoilState(vSenderAddrListX);
     const [receiverAddrList, setReceiverAddrList] = useRecoilState(vReceiverAddrListX);
     const accountDetails = useRecoilValue(vAccountDetailsX);
+    const networkId = useRecoilValue(vNetworkIdX);
 
     const maxBalanceAmount = useMemo(()=>
         accountDetails?.details?.[transferOpt?.senderChainId??0]?.balance??0,
@@ -310,8 +311,8 @@ export default function CoinSender({visible}){
         return !!(isSenderAddrValid & isReceiverAddrValid & !sameAccountSameChainid);
     }, []);
 
-    const minGasPrice = useMemo(()=>+localStorage.getItem('minGasPrice'),[localStorage.getItem('minGasPrice')]);
-    const minGasLimit = useMemo(()=>+localStorage.getItem('minGasLimit'),[localStorage.getItem('minGasLimit')]);
+    const minGasPrice = useMemo(()=>networkId.includes('testnet') ? C.MIN_GAS_PRICE : 1e-8, [networkId]);
+    const minGasLimit = C.MIN_GAS_LIMIT;
     
     return <CoinSenderWrapper visible={visible}>
             <Wrapper>
@@ -322,11 +323,6 @@ export default function CoinSender({visible}){
                             options={senderAddrList}
                             value={transferOpt.senderAccountAddr}
                             disabled={true}
-                            onChange={(e,d)=>{
-                                setTransferOpt(produce((s)=>{
-                                    s.senderAccountAddr = d.value;
-                                }))
-                            }}
                         />
                     </span>
                     <span>
@@ -614,12 +610,16 @@ export default function CoinSender({visible}){
                         <Button variant="contained" 
                             color="primary"
                             disabled={!transferAllow(transferOpt)}
-                            onClick={(e)=>{ setConfirmOpened(true); }
+                            onClick={(e)=>{ setTransferConfirmOpened(true); }
                         }>Transfer</Button>
                     </span>
                 </div>
             </Wrapper>
-            <TransferConfirm data={transferOpt} visible={confirmOpened} cancelConfirm={()=>setConfirmOpened(false)}/>
+            <TransferConfirm 
+                transferOpt={transferOpt} 
+                visible={transferConfirmOpened} 
+                cancelConfirm={()=>setTransferConfirmOpened(false)}
+            />
     </CoinSenderWrapper>
 }
 

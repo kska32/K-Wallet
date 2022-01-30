@@ -121,9 +121,6 @@ const Wrapper = styled.div`
 `;
 
 export default function({infoData, visible}){
-    const [reqkeysData, setReqkeysData] = useRecoilState(vRecentReqkeysData);
-    const setPageNum = useSetRecoilState(vPageNumX);
-    const setLoading = useSetRecoilState(vIsLoadingX);
     const setInfoData = useSetRecoilState(vInfoDataX);
 
     return <Wrapper visible={visible}>

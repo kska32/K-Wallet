@@ -1,5 +1,5 @@
 import React, {useLayoutEffect, useCallback, useRef} from "react";
-import {useRecoilState, useRecoilValue} from 'recoil';
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import { 
     vSidebarOpenedX, vKeypairListX, vAccAddrX, vIsLoadingX,
     vPrivateKeyPageX, vConfirmDataX, vSwitchAccountBoxOpenedX,
@@ -217,26 +217,23 @@ const MenuboxItem = ({children, onSelect, onRemove, className}) => {
 export default function(props){
     const accountAddr = useRecoilValue(vAccAddrX);
     const [sidebarOpened, setSidebarOpened] = useRecoilState(vSidebarOpenedX);
-    const [keypairList, setKeypairList] = useRecoilState(vKeypairListX);
+    const keypairList = useRecoilValue(vKeypairListX);
     const [confirmData, setConfirmData] = useRecoilState(vConfirmDataX);
-    const [deleteData, setDeleteData] = useRecoilState(vDeleteDataX);
+    const setDeleteData = useSetRecoilState(vDeleteDataX);
     const [menuboxOpened, setMenuboxOpened] = useRecoilState(vSwitchAccountBoxOpenedX);
-    const [privateKeyPage, setPrivateKeyPage] = useRecoilState(vPrivateKeyPageX);
-    const [importPrikeyPage, setImportPriKeyPage] = useRecoilState(vImportPrikeyPageX);
-    const [isLoading, setLoading] = useRecoilState(vIsLoadingX);
-    const [changePasswordPage, setChangePasswordPage] = useRecoilState(vChangePasswordPageX);
+    const setPrivateKeyPage = useSetRecoilState(vPrivateKeyPageX);
+    const setImportPriKeyPage = useSetRecoilState(vImportPrikeyPageX);
+    const setLoading = useSetRecoilState(vIsLoadingX);
+    const setChangePasswordPage = useSetRecoilState(vChangePasswordPageX);
     const menuBoxRef = useRef(null);
 
     useLayoutEffect(()=>{
         if(confirmData.confirmed===true){
             setLoading(produce((s)=>{ s.opened = true; s.text = null; }));
-            chrome.runtime.sendMessage({type: C.MSG_GENERATE_RANDOM_KEYPAIR},(res)=>{
-                if(res.success === true){
-                    setTimeout(()=>{
-                        menuBoxRef.current.scrollTo({top: 10000000, behavior: 'smooth'});
-                    },120);
-                }
-            });
+            chrome.runtime.sendMessage({type: C.MSG_GENERATE_RANDOM_KEYPAIR});
+            setTimeout(()=>{
+                menuBoxRef.current.scrollTo({top: 10000000, behavior: 'smooth'});
+            }, 120);
         }
     },[confirmData.confirmed]);
 

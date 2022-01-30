@@ -2,6 +2,11 @@
 import CryptoJS from "crypto-js";
 import nacl from "tweetnacl";
 import {Buffer} from "buffer";
+import { v4 as generateUUID } from 'uuid';
+import { reqkeysDB } from "./localdb";
+import C from "./constant";
+import {pushNoti} from "./notification";
+
 
 const toBin = hexstr => new Uint8Array(Buffer.from(hexstr,'hex'));
 const toHex = b => Buffer.from(b).toString('hex');
@@ -152,23 +157,88 @@ export function isValidKey(value){
     return [...vc].every((v,i)=>"0123456789abcdef".includes(v));
 }
 
-export function AutoLock(interval = 5, max = 60, timer = ()=>{}, timeend = ()=>{}){
-    let timex = max;
-    const fn = () => {
-        timex -= interval;
-        timer(timex, +(timex / max * 100).toFixed(2));
-        if(timex <= 0){
-            timeend();
-            clearInterval(tid);
-        }
-    }
-    let tid = setInterval(fn, interval * 1000);
 
+
+export const StateManager = (()=>{
     return {
-        reset: (maxx = max) => {
-            clearInterval(tid);
-            timex = maxx;
-            tid = setInterval(fn, interval * 1000);
+        get: (k) => chrome.storage.local.get(k),
+        set: (v) => chrome.storage.local.set(v),
+        clear: () => chrome.storage.local.clear()
+    }
+})();
+
+export async function createAlarm(alarmName, when = 0, interval = 3, handler = () => {}){
+    for(let i=1; i <= 60/interval; i++){
+        chrome.alarms.create(`${alarmName}+${i}`, {
+            when: Date.now() + 1000 * when + 1000 * interval * i,
+            periodInMinutes: 1
+        });
+    }
+
+    const listener = ({name}) => {
+        if(name.includes(alarmName)){
+            handler(name, alarmName);
+        }
+    };
+
+    chrome.alarms.onAlarm.addListener(listener);
+}
+
+
+export function createReqLogger(reqKey, param={}, responds = [], success = false, finished = false, lastError = null){
+    let ret = {reqKey, param, responds, success, finished, lastError, step: responds.length, tstep: 0};
+    const isxtransfer = param.senderChainId !== param.receiverChainId;
+    ret.tstep = isxtransfer ? 5 : 2;
+
+    const ssm = async (k, v) => {
+        //save to db and send msg to popup.
+        await reqkeysDB.upsertItem(reqKey, ret);
+        chrome.runtime.sendMessage({type: C.FMSG_TRANSFER_PROGRESS, key: k, value: v});
+        return v;
+    }
+    
+    return {
+        set: async (responds)=>{
+            ret.responds = responds;
+            ret.step = ret.responds.length;
+
+            if(ret.step === ret.tstep){
+                ret.finished = true;
+                if(ret.responds[ret.step - 1]?.result?.status === 'success'){
+                    ret.success = true;
+                    pushNoti(
+                        ret.reqKey,
+                        ret.param
+                    );
+                }
+            }
+
+            if(ret.step <= 1){
+                await StateManager.set({
+                    isLoading: {opened: false, text: null},
+                    transferConfirmOpened: false, pageNum: 11,
+                })
+            }
+            return await ssm(reqKey, ret); 
+        },
+        err: async (error)=>{
+            await StateManager.set({
+                isLoading: {opened: false, text: null}
+            });
+            ret.lastError = error?.message??error; 
+            return await ssm(reqKey, ret); 
         }
     }
+}
+
+export function SendErrorMessage(behavior, totalstep, err, param = {}){
+    chrome.runtime.sendMessage({
+        type: C.FMSG_TRANSFER_PROGRESS, 
+        key: null, 
+        value: {
+            behavior,
+            step: 0, tstep: totalstep, param, responds: [], 
+            success: false, finished: false, lastError: ErrorDescription(err)
+        }
+    });
 }

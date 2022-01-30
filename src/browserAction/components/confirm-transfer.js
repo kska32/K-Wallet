@@ -107,22 +107,17 @@ const Wrapper = styled.div`
 
 
 
-export default function({data, visible, cancelConfirm}){
+export default function({transferOpt, visible, cancelConfirm}){
     const [reqkeysData, setReqkeysData] = useRecoilState(vRecentReqkeysData);
     const setPageNum = useSetRecoilState(vPageNumX);
     const setLoading = useSetRecoilState(vIsLoadingX);
     
     const TransferConfirm = useCallback(() => {
-        setLoading(produce((s)=>{
-            s.opened = true;
-            s.text = null;
-        }));
+        setLoading(produce((s)=>{ s.opened = true; }));
         chrome.runtime.sendMessage({
             type: C.MSG_JUST_TRANSFER, 
-            data: data  //=> transferOpt
+            transferOpt
         });
-
-        
         const handler = (message) => {
             let {type,key,value} = message;
             switch(type){
@@ -133,24 +128,17 @@ export default function({data, visible, cancelConfirm}){
                             limit: reqkeysData.length + 1
                         }, (res)=>{
                             chrome.runtime.onMessage.removeListener(handler);
-                            setLoading(produce((s)=>{ s.opened = false; s.text = null; }));
-                            cancelConfirm();
                             setReqkeysData(res);
-                            setPageNum(11);
-                        })
-                    }else if(value.step === 0){
-                        chrome.runtime.onMessage.removeListener(handler);
-                        setLoading(produce((s)=>{ s.opened = false; s.text = null; }));
-                        cancelConfirm();
+                        });
                     }
                     break;
                 }
             }
+            return true;
         }
         
         chrome.runtime.onMessage.addListener(handler);
-        
-    }, [data, reqkeysData]);
+    }, [transferOpt, reqkeysData]);
 
 
     return <Wrapper visible={visible}>
@@ -158,21 +146,21 @@ export default function({data, visible, cancelConfirm}){
             <div className='title'>Confirm Transaction</div>
             <div className='from'>
                 <div className='tag'>From: </div>
-                <div>{data?.senderAccountAddr??''}</div>
-                <div>ChainId: {data?.senderChainId??''}</div>
+                <div>{transferOpt?.senderAccountAddr??''}</div>
+                <div>ChainId: {transferOpt?.senderChainId??''}</div>
             </div>
             <div className='to'>
                 <div className='tag'>To: </div>
-                <div>{data?.receiverAccountAddr??''}</div>
-                <div>ChainId: {data?.receiverChainId??''}</div>
+                <div>{transferOpt?.receiverAccountAddr??''}</div>
+                <div>ChainId: {transferOpt?.receiverChainId??''}</div>
             </div>
             <div className='amount'>
                 <div className='tag'>Amount: </div>
-                <div>{data?.amount??''} KDA</div>
+                <div>{transferOpt?.amount??''} KDA</div>
             </div>
             <div className='maxfee'>
                 <div className='tag'>MaxTransactionFee:</div>
-                <div>{format((data?.gasPrice??0) * (data?.gasLimit??0))} KDA</div>
+                <div>{format((transferOpt?.gasPrice??0) * (transferOpt?.gasLimit??0))} KDA</div>
             </div>
             <div className='confirm'>
                 <Button variant="contained" color="primary" onClick={TransferConfirm}>Confirm</Button>

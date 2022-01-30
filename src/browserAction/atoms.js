@@ -2,10 +2,9 @@ import {atom,selector} from 'recoil';
 import C from "../background/constant";
 
 const promiseSendMessage = (msg) => {
-    return new window.Promise((resolve,reject)=>{
+    return new Promise((resolve,reject)=>{
         chrome.runtime.sendMessage(msg, (state)=>{
             if(chrome.runtime.lastError){
-                //console.warn(chrome.runtime.lastError.message);
                 reject(chrome.runtime.lastError.message)
             } 
             resolve(state);
@@ -24,11 +23,6 @@ export const vHasAccount = atom({
     default: promiseSendMessage({type: C.MSG_HAS_ACCOUNT})
 });
 
-
-export const vKDAprice = atom({
-    key: 'vKDAprice',
-    default: promiseSendMessage({type: C.MSG_GET_KDA_PRICE})
-});
 
 export const vRecentReqkeysData = atom({
     key: 'vRecentReqkeysData',
@@ -58,12 +52,12 @@ const AtomHelper = (keyName, Atom=vStateX)=>({
 
 export const vLockupX = selector({
     key: 'vLockupX',
-    get: ({get}) => !!get(vState)?.password,
+    get: ({get}) => !!get(vStateX)?.password,
     set: ({get,set}, newValue) => {
         if(newValue===true){
             chrome.runtime.sendMessage({ type: C.MSG_LOCK_UP });
-            set(vState, {
-                ...get(vState), 
+            set(vStateX, {
+                ...get(vStateX), 
                 password: '', 
                 keypairHex: {publicKey:'',secretKey:''},
                 keypairBuf: {publicKey:'',secretKey:''},
@@ -73,11 +67,10 @@ export const vLockupX = selector({
     }
 });
 
-
 export const vAccAddrX = selector({
     key: 'vAccAddrX',
     get: ({get}) => {
-        let accAddr = get(vState)?.keypairHex?.publicKey; 
+        let accAddr = get(vStateX)?.keypairHex?.publicKey; 
         return !!accAddr ? 'k:'+accAddr : '';
     }
 });
@@ -94,28 +87,28 @@ export const vNetworkIdX = selector({
     key: "vNetworkIdX",
     get: ({get}) => get(vStateX)?.networkId,
     set: ({get,set}, newValue) => {
-        chrome.runtime.sendMessage({type: C.MSG_SET_NETWORKID, networkId: newValue});
-        set(vStateX, {...get(vStateX), networkId: newValue});
+        chrome.runtime.sendMessage({type: C.MSG_CHANGE_NETWORKID, networkId: newValue});
+        set(vState, {...get(vState), networkId: newValue});
     }
 });
 
-export const vPasswordX = selector(AtomHelper('password',vState));
+export const vPasswordX = selector(AtomHelper('password'));
 
-export const vPasswordConfirmX = selector(AtomHelper('passwordConfirm'), vState);
+export const vPasswordConfirmX = selector(AtomHelper('passwordConfirm'));
 
-export const vPasswordRX = selector(AtomHelper('passwordR', vState));
+export const vPasswordRX = selector(AtomHelper('passwordR'));
 
-export const vKeypairHexX = selector(AtomHelper('keypairHex',vState));
+export const vKeypairHexX = selector(AtomHelper('keypairHex'));
 
 export const vPageNumX = selector(AtomHelper('pageNum'));
 
 export const vAccountDetailsX = selector(AtomHelper('accountDetails'));
 
-export const vIsLoadingX = selector(AtomHelper('isLoading', vStateX));
+export const vIsLoadingX = selector(AtomHelper('isLoading'));
 
 export const vTransferOptX = selector(AtomHelper('transferOpt'));
 
-export const vConfirmOpenedX = selector(AtomHelper('confirmOpened'));
+export const vTransferConfirmOpenedX = selector(AtomHelper('transferConfirmOpened'));
 
 export const vErrorDataX = selector(AtomHelper('errorData'));
 
