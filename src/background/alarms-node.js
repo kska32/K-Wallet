@@ -39,7 +39,7 @@ export async function AutoLocker(){
             const limitTime = 1000 * 60 * 8;
             let lockupTime = await userOptionsDB.getItem(name);
             if(lockupTime === undefined){
-                userOptionsDB.upsertItem(name,  {endTime: Date.now() + limitTime, limitTime});
+                userOptionsDB.upsertItem(name, {endTime: Date.now() + limitTime, limitTime});
             }else{
                 let rt = await userOptionsDB.getItem(name);
                 let {endTime, limitTime} = rt;
