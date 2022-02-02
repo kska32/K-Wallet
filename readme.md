@@ -8,7 +8,7 @@
 2. Super stable crosschain-transfer, "finish cross transfer tool" is no longer required.
 3. Full tracking transfer transaction and error handler.
 4. All user's data stored into user's browser storage and indexeddb.
-5. It is a personal open source project.
+5. It is a personal open source project, anyone can use it or study it.
 #
 #
 <img src="./readme-images/k1.png" width='700' height='500'/>
