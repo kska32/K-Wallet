@@ -1,6 +1,6 @@
 #
 #
-# K:Wallet - Chrome exntension, for the kadena blockchain.
+# K:Wallet - Chrome extension, for the kadena blockchain.
 #
 #
 
