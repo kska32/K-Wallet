@@ -11,17 +11,22 @@
 <img src="./readme-images/k3.png" width='700' height='500'/>
 <img src="./readme-images/k4.png" width='700' height='500'/>
 
+#
+#
+# 
+# How to install the unpacked extension in Chrome
+#
 
-<h2>How to install the unpacked extension in Chrome</h2>
-
+<div style="transform:scale(0.5); transform-origin: left top">
 <pre>
 
-I. 
-<img src="./readme-images/how-to-install-k0.png" />
+# I.
+<img src="./readme-images/how-to-install-k0.png" /><br/>
 
-II. 
-<img src="./readme-images/how-to-install-k1.png"/>
+# II. 
+<img src="./readme-images/how-to-install-k1.png"/><br/>
 
-III.
-<img src="./readme-images/how-to-install-k2.png"/>
+# III.
+<img src="./readme-images/how-to-install-k2.png"/><br/>
 </pre>
+</div>
