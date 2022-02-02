@@ -25,13 +25,13 @@
 <div style="transform:scale(0.5); transform-origin: left top">
 <pre>
 
-# I.
+<h1>I.</h1>
 <img src="./readme-images/how-to-install-k0.png" /><br/>
 
-# II. 
+<h1>II.</h1>
 <img src="./readme-images/how-to-install-k1.png"/><br/>
 
-# III.
+<h1>III.</h1>
 <img src="./readme-images/how-to-install-k2.png"/><br/>
 </pre>
 </div>
