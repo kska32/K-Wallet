@@ -338,7 +338,6 @@ const AlertModal = ()=>{
 
 const ConfirmModal = ()=>{
     const [confirmData, setConfirmData] = useRecoilState(vConfirmDataX);
-    const setLoading = useSetRecoilState(vIsLoadingX);
 
     const close = useCallback(()=>{
         setConfirmData(produce((s)=>{

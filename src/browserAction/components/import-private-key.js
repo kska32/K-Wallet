@@ -123,7 +123,6 @@ export default function(){
     const [importPrikeyPage, setImportPriKeyPage] = useRecoilState(vImportPrikeyPageX);
     const [text, setText] = useState('');
     const [publickey, setPublickey] = useState('');
-    const setLoading = useSetRecoilState(vIsLoadingX);
 
     const confirmOnClick = useCallback((props) => {
         if(text.length >= 64){

@@ -223,7 +223,6 @@ export default function(props){
     const [menuboxOpened, setMenuboxOpened] = useRecoilState(vSwitchAccountBoxOpenedX);
     const setPrivateKeyPage = useSetRecoilState(vPrivateKeyPageX);
     const setImportPriKeyPage = useSetRecoilState(vImportPrikeyPageX);
-    const setLoading = useSetRecoilState(vIsLoadingX);
     const setChangePasswordPage = useSetRecoilState(vChangePasswordPageX);
     const menuBoxRef = useRef(null);
 
