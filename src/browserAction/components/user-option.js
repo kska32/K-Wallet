@@ -115,7 +115,7 @@ export default function UserOption({visible, ...props}){
                     Hope many people like this wallet Ext.<br/>
                 </div>
                 <div>
-                    <a href="https://github.com/kska32" target='_blank'><GitHubIcon/></a>
+                    <a href="https://github.com/kska32/K-Wallet" target='_blank'><GitHubIcon/></a>
                     <a href="mailto:kska32@gmail.com" target='_blank'><EmailIcon/></a>
                     <a href="https://chrome.google.com/webstore/detail/bfjdmoniilmnfleebdfpcchhjbmdffil" target='_blank'><ThumbUpIcon/></a>
                 </div>
