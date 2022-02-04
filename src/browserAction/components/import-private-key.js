@@ -127,7 +127,6 @@ export default function(){
 
     const confirmOnClick = useCallback((props) => {
         if(text.length >= 64){
-            setLoading(produce((s)=>{ s.opened = true; s.text = null; }));
             chrome.runtime.sendMessage({
                 type: C.MSG_IMPORT_PRIVATE_KEY,
                 privateKey: text

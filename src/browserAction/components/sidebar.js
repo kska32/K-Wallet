@@ -229,7 +229,6 @@ export default function(props){
 
     useLayoutEffect(()=>{
         if(confirmData.confirmed===true){
-            setLoading(produce((s)=>{ s.opened = true; s.text = null; }));
             chrome.runtime.sendMessage({type: C.MSG_GENERATE_RANDOM_KEYPAIR});
             setTimeout(()=>{
                 menuBoxRef.current.scrollTo({top: 10000000, behavior: 'smooth'});
@@ -239,7 +238,6 @@ export default function(props){
 
     const onSelect = useCallback((v,i)=>{
         if(v.selected !== true){
-            setLoading(produce((s)=>{ s.opened = true; s.text = null; }));
             chrome.runtime.sendMessage({
                 type: C.MSG_CHANGE_SELECTED_ACCOUNT,
                 selectedKey: v.publicKey

@@ -390,10 +390,6 @@ const DeleteModal = (props) => {
 
     const confirm = useCallback(()=>{
         if(key.length >= 64){
-            setLoading(produce((s)=>{
-                s.opened = true;
-                s.text = null;
-            }));
             chrome.runtime.sendMessage({
                 type: C.MSG_VERIFY_PRIVATE_KEY,
                 publicKey: deleteData.publicKey,
@@ -407,10 +403,6 @@ const DeleteModal = (props) => {
                     setKey('');
                     setInvalidKey(null);
                 }else{
-                    setLoading(produce((s)=>{
-                        s.opened = false;
-                        s.text = null;
-                    }));
                     setInvalidKey(true);
                 }
             });

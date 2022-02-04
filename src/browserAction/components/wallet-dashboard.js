@@ -607,7 +607,6 @@ export function LockProgressBar(){
 export default function({visible}){
     const accountAddr = useRecoilValue(vAccAddrX);
     const accountDetails = useRecoilValue(vAccountDetailsX);
-    const setLoading = useSetRecoilState(vIsLoadingX);
     const lockUp = useSetRecoilState(vLockupX);
     const [interActionNo, setInterActionNo] = useRecoilState(vPageNumX);
     const [networkId, setNetworkId] = useRecoilState(vNetworkIdX);
@@ -628,13 +627,10 @@ export default function({visible}){
     },[]);
 
     const onNetworkChange = useCallback((v)=>{
-        setLoading({opened: true, text: null});
         setNetworkId(v);
-        //refreshAccountDetails();
     },[accountAddr, networkId]);
 
     const refreshAccountDetails = useCallback(()=>{
-        setLoading({opened: true, text: null});
         chrome.runtime.sendMessage({
             type: C.MSG_GET_ACCOUNT_DETAILS, 
             accountId: accountAddr

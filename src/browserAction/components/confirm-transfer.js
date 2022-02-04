@@ -109,11 +109,7 @@ const Wrapper = styled.div`
 
 export default function({transferOpt, visible, cancelConfirm}){
     const [reqkeysData, setReqkeysData] = useRecoilState(vRecentReqkeysData);
-    const setPageNum = useSetRecoilState(vPageNumX);
-    const setLoading = useSetRecoilState(vIsLoadingX);
-    
     const TransferConfirm = useCallback(() => {
-        setLoading(produce((s)=>{ s.opened = true; }));
         chrome.runtime.sendMessage({
             type: C.MSG_JUST_TRANSFER, 
             transferOpt

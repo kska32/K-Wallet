@@ -35,3 +35,12 @@
 <img src="./readme-images/how-to-install-k2.png"/><br/>
 </pre>
 </div>
+
+#
+#
+# 
+# How to download
+#
+<div style="transform:scale(0.5); transform-origin: left top">
+<img src="./readme-images/how to download.png" /><br/>
+</div>

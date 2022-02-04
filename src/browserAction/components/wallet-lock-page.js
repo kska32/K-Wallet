@@ -141,10 +141,8 @@ export default function({visible}){
     const classes = useStyles();
     const [pass, setPass] = useState('');
     const [isIncorrect, setIncorrect] = useState(false);
-    const setLoading = useSetRecoilState(vIsLoadingX);
-
+    
     const verifyPassword = useCallback(async(password)=>{
-        setLoading(produce((s)=>{ s.opened = true;}));
         chrome.runtime.sendMessage({ 
             type: C.MSG_VERIFY_PASSWORD, 
             value: {password} 
@@ -152,7 +150,6 @@ export default function({visible}){
             if(chrome.runtime.lastError){
                 //console.error('lock-page:', chrome.runtime.lastError.message);
             } 
-            setLoading(produce((s)=>{ s.opened = false;}));
             if(res?.success === false){
                 setIncorrect(true);
             }

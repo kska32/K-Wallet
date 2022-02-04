@@ -485,7 +485,6 @@ export default function(props){
         ['mnemonic']: null
     });
 
-    const setLoading = useSetRecoilState(vIsLoadingX);
     const passwordR = useRecoilValue(vPasswordRX);
 
     const onBack = useCallback(()=>{
@@ -496,7 +495,6 @@ export default function(props){
 
     const onNext = useCallback(async (ok)=>{
         if(ok){
-            setLoading({opened: true, text: null});
             let keypair = createMnemonic().mnemonicToKeypair(valid.mnemonic);
             chrome.runtime.sendMessage({
                 type: C.MSG_SAVE_PASS,

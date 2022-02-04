@@ -34,6 +34,7 @@ chrome.runtime.onInstalled.addListener(async()=>{
 
  async function MessageListener(message, sender = null, sendResponse = ()=>{}){
     let {type} = message;
+    const setLoading = async (s = true) => await StateManager.set({isLoading: {opened: s}});
    
     switch(type){
         case C.MSG_GET_STATE: {
@@ -46,6 +47,7 @@ chrome.runtime.onInstalled.addListener(async()=>{
             return await StateManager.set(state);
         }
         case C.MSG_SAVE_PASS:{
+            await setLoading(true);
             let state = await StateManager.get();
             const {password, keypairHex:{publicKey,secretKey}} = message;
             const {networkId} = state;
@@ -87,6 +89,7 @@ chrome.runtime.onInstalled.addListener(async()=>{
         }
         case C.MSG_VERIFY_PASSWORD: {
             if(message?.value?.password){
+                await setLoading(true);
                 const responds = await keypairsDB.getAll();
                 const selectedAccIndex = responds.findIndex(o=>o.selected===true);
                 const res = responds[selectedAccIndex];
@@ -203,6 +206,7 @@ chrome.runtime.onInstalled.addListener(async()=>{
             return true;
         }
         case C.MSG_CHANGE_SELECTED_ACCOUNT: {
+            await setLoading(true);
             const { selectedKey } = message;
             let selectedAccIndex = null;
             let kps = await keypairsDB.getAll();
@@ -272,6 +276,7 @@ chrome.runtime.onInstalled.addListener(async()=>{
         }
         case C.MSG_VERIFY_PRIVATE_KEY: {
             const {publicKey, privateKey} = message;
+            await setLoading(true);
             await keypairsDB.getItem(publicKey).then(async(res)=>{
                 const {key, enc} = res;
                 if(key === publicKey) {
@@ -279,29 +284,19 @@ chrome.runtime.onInstalled.addListener(async()=>{
                     const dec = aesDecrypt(enc, state.password);
                     if(dec !== "%%ERROR_DECRYPT_FAILED%%"){
                         if(privateKey === JSON.parse(dec)[2]){
-                            return sendResponse({
-                                success: true, 
-                                error: null
-                            });
+                            return sendResponse({success: true, error: null});
                         }else{
-                            return sendResponse({
-                                success: false, 
-                                error: "Incorrect Password."
-                            });
+                            return sendResponse({ success: false, error: "Incorrect Password." });
                         }
                     }
                 }else{
-                    return sendResponse({
-                        success: false, 
-                        error: "PublicKey Does Not Match."
-                    });
+                    return sendResponse({ success: false, error: "PublicKey Does Not Match." });
                 }
             }).catch((err)=>{
                 console.error(err);
-                return sendResponse({
-                    success: false, 
-                    error: "Pubkey Not Founded."
-                })
+                return sendResponse({ success: false, error: "Pubkey Not Founded." })
+            }).finally(()=>{
+                setLoading(false);
             })
             break;
         }
@@ -309,6 +304,7 @@ chrome.runtime.onInstalled.addListener(async()=>{
             const {privateKey} = message;
             
             if(isValidKey(privateKey)){
+                await setLoading(true);
                 let state = await StateManager.get();
                 let publicKey = getPublicKeyFromSecretKey(privateKey);
                 const enc = aesEncrypt(JSON.stringify([
@@ -335,6 +331,7 @@ chrome.runtime.onInstalled.addListener(async()=>{
             return StateManager.set(state);
         }
         case C.MSG_GET_ACCOUNT_DETAILS: {
+            await setLoading(true);
             let state = await StateManager.get();
             let {networkId} = state;
             state = {};
@@ -354,6 +351,7 @@ chrome.runtime.onInstalled.addListener(async()=>{
             return StateManager.set(state);
         }
         case C.MSG_GENERATE_RANDOM_KEYPAIR: {
+            await setLoading(true);
             let state = await StateManager.get();
             const {publicKey, secretKey} = generateRandomKeypair();
             const sha512pwd = state.password;
@@ -371,6 +369,7 @@ chrome.runtime.onInstalled.addListener(async()=>{
             return StateManager.set(state);
         }
         case C.MSG_JUST_TRANSFER: {
+            await StateManager.set({isLoading: {opened: true}});
             const state = await StateManager.get();
             const dec = aesDecrypt(state.keypairHex.secretKey, state?.password??'');
 
@@ -382,6 +381,7 @@ chrome.runtime.onInstalled.addListener(async()=>{
                     networkId: state.networkId
                 };
                 await Transfer.justTransfer(transferOption);
+                await StateManager.set({isLoading: {opened: false}});
             }else{
                 throw 'Incorrect Password.';
             }
@@ -414,6 +414,7 @@ chrome.runtime.onInstalled.addListener(async()=>{
         }
         case C.MSG_CHANGE_NETWORKID: {
             const {networkId} = message;
+            await setLoading(true);
             let state = await StateManager.get();
             state = await setUserOptions({networkId}, sendResponse);
             const accountAddr = 'k:' + state.keypairHex.publicKey;
