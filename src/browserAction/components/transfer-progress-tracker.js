@@ -610,17 +610,17 @@ export default React.memo(({visible})=>{
                                 <span>{moment(v.timestamp).format("LL - LTS")}</span>
                                 <CloseSharpIcon className='delete' onClick={()=>{
                                     if(v?.reqKey){
-                                        chrome.runtime.sendMessage({
-                                            type: C.MSG_REMOVE_A_TX_RESULT, 
-                                            deleteKey: v.reqKey
-                                        },(res)=>{
-                                            if(res === true){
-                                                itemRefs.current[i].style='margin-top: -116px; opacity: 0; z-index:0;';
-                                                setTimeout(()=>{
+                                        itemRefs.current[i].style='margin-top: -116px; opacity: 0; z-index:0;';
+                                        setTimeout(()=>{
+                                            chrome.runtime.sendMessage({
+                                                type: C.MSG_REMOVE_A_TX_RESULT, 
+                                                deleteKey: v.reqKey
+                                            },(res)=>{
+                                                if(res === true){
                                                     setReqkeysData(produce((s)=>{ s.splice(i,1) }));
-                                                },180); 
-                                            }
-                                        });
+                                                }
+                                            });
+                                        }, 180); 
                                     }
                                 }}/>
                             </div>

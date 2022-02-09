@@ -21,10 +21,7 @@ export async function KdaPriceTick(){
         try{
             let kucoin = new ccxt.kucoin();
             let res = await kucoin.fetchTicker('KDA/USDT');
-            chrome.runtime.sendMessage({
-                type:C.FMSG_KDA_PRICE_UPDATE, 
-                value: res?.last??0
-            });
+            await StateManager.set({kdausdt: res?.last??0});
         }catch(err){
             console.error(err);
         }
@@ -36,13 +33,12 @@ export async function AutoLocker(){
     createAlarm('AutoLocker', 0, 5, async(name, alarmName)=>{
         try{
             const name = 'lockupTime';
-            const limitTime = 1000 * 60 * 8;
+            const LIMITTIME = 1000 * 60 * 8;
             let lockupTime = await userOptionsDB.getItem(name);
             if(lockupTime === undefined){
-                await userOptionsDB.upsertItem(name, {endTime: Date.now() + limitTime, limitTime});
+                await userOptionsDB.upsertItem(name, {endTime: Date.now() + LIMITTIME, limitTime: LIMITTIME});
             }else{
-                let rt = await userOptionsDB.getItem(name);
-                let {endTime, limitTime} = rt;
+                let {endTime, limitTime} = lockupTime;
                 let percent = Math.max( +((endTime - Date.now()) / limitTime * 100).toFixed(2), 0 );
 
                 if(percent===0){
@@ -64,8 +60,9 @@ export async function AutoLocker(){
         }
     });
 
-    chrome.runtime.onMessage.addListener(()=>{
-        userOptionsDB.getItem('lockupTime').then(({limitTime})=>{
+    chrome.runtime.onMessage.addListener((o)=>{
+        userOptionsDB.getItem('lockupTime').then((res)=>{
+            const limitTime = res?.limitTime??0;
             if(limitTime){
                 userOptionsDB.upsertItem('lockupTime', {
                     endTime: Date.now() + limitTime

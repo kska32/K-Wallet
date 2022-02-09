@@ -2,7 +2,7 @@ import React, {useCallback} from "react";
 import styled from "styled-components";
 import produce from "immer";
 import {useRecoilState, useSetRecoilState} from 'recoil';
-import {vPageNumX, vRecentReqkeysData, vIsLoadingX} from '../atoms';
+import {vPageNumX, vRecentReqkeysData} from '../atoms';
 import Button from '@material-ui/core/Button';
 import C from "../../background/constant";
 import {format} from "./component-utils";

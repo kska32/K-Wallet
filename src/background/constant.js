@@ -43,6 +43,7 @@ const C = {
     MSG_UPSERT_A_RECEIVER_ADDR: "UPSERT_A_RECEIVER_ADDR",
     MSG_CREATE_NEW_TAB: "CREATE_NEW_TAB",
     MSG_GENERATE_RANDOM_KEYPAIR: "GENERATE_RANDOM_KEYPAIR",
+    MSG_GET_KDA_PRICE: "GET_KDA_PRICE",
 
     MSG_CHANGE_SELECTED_ACCOUNT: "CHANGE_DEFAULT_ACCOUNT",
     MSG_REMOVE_ACCOUNT: "REMOVE_ACCOUNT",
@@ -72,7 +73,6 @@ const C = {
     FMSG_LOCK_PROGRESS_STATE: "LOCK_PROGRESS_STATE",
     FMSG_INIT_ACCOUNT_SUCCESS: "INIT_ACCOUNT_SUCCESS",
     FMSG_SYNC_BACKGROUND_STATE: "SYNC_BACKGROUND_STATE",
-    FMSG_KDA_PRICE_UPDATE: "KDA_PRICE_UPDATE_SUCCESS"
 };
 
 export const BackgroundState = {
@@ -109,7 +109,8 @@ export const BackgroundState = {
         },
         isLoading: {
             opened: false,
-            text: null
+            text: null,
+            timestamp: null
         },
         kdausdt: 0,
         transferConfirmOpened: false,

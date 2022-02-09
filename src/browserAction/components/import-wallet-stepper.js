@@ -3,8 +3,8 @@ import produce from 'immer';
 import styled from "styled-components";
 import C from "../../background/constant";
 
-import {vStateX, vIsLoadingX, vPasswordRX} from "../atoms.js";
-import {useRecoilValue, useRecoilState, useSetRecoilState} from 'recoil';
+import {vStateX, vPasswordRX} from "../atoms.js";
+import {useRecoilValue, useRecoilState} from 'recoil';
 
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';

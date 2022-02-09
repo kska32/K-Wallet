@@ -3,7 +3,7 @@ import produce from 'immer';
 import styled from "styled-components";
 import C from "../../background/constant";
 
-import {vStateX, vIsLoadingX, vPasswordConfirmX} from "../atoms.js";
+import {vStateX, vPasswordConfirmX} from "../atoms.js";
 import {useRecoilValue, useRecoilState} from 'recoil';
 
 import { makeStyles } from '@material-ui/core/styles';

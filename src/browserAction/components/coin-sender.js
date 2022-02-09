@@ -308,6 +308,7 @@ export default function CoinSender({visible}){
         let isSenderAddrValid = verifyReceiverAddr(t.senderAccountAddr);
         let isReceiverAddrValid = verifyReceiverAddr(t.receiverAccountAddr);
         let sameAccountSameChainid = t.senderAccountAddr === t.receiverAccountAddr && t.senderChainId === t.receiverChainId;
+        if(t.amount <= 0) return false;
         return !!(isSenderAddrValid & isReceiverAddrValid & !sameAccountSameChainid);
     }, []);
 

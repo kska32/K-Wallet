@@ -1,7 +1,7 @@
 import createTransfer from "./transfer";
 import {reqkeysDB, senderReqkeyAlarmDB, alarmDbs} from "./localdb";
 import C from "./constant";
-import {createReqLogger} from "./utils";
+import {createReqLogger, SendErrorMessage} from "./utils";
 
 
 export default function(){
@@ -169,20 +169,6 @@ export default function(){
         }
     }
 
-
-    function SendErrorMessage(behavior, totalstep, err, param = {}){
-        chrome.runtime.sendMessage({
-            type: C.FMSG_TRANSFER_PROGRESS, 
-            key: null, 
-            value: {
-                behavior,
-                step: 0, tstep: totalstep, param, responds: [], 
-                success: false, finished: false, lastError: ErrorDescription(err)
-            }
-        });
-    }
-    
-
     return {
         getAcctDetailsForAllChains,
         initAccountForAnyChains,
@@ -195,32 +181,6 @@ export default function(){
 
 
 
-
-function ErrorDescription(err){
-    let errkey = '';
-    switch(err?.constructor.name){
-        case 'Error':
-        case 'TypeError': {
-            errkey = err.message;
-            break;
-        }
-        case 'Object': {
-            errkey = JSON.stringify(err);
-            break;
-        }
-        default: {
-            errkey = err;
-            break;
-        }
-    }
-
-    const descs = {
-        ['Failed to fetch']: 'No Network Connection',
-
-    }
-
-    return descs[errkey] || errkey;
-}
 
 
 

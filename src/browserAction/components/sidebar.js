@@ -1,7 +1,7 @@
 import React, {useLayoutEffect, useCallback, useRef} from "react";
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import { 
-    vSidebarOpenedX, vKeypairListX, vAccAddrX, vIsLoadingX,
+    vSidebarOpenedX, vKeypairListX, vAccAddrX,
     vPrivateKeyPageX, vConfirmDataX, vSwitchAccountBoxOpenedX,
     vDeleteDataX, vImportPrikeyPageX, vChangePasswordPageX
 } from "../atoms.js";

@@ -2,7 +2,7 @@ import React, {useState, useLayoutEffect, useCallback} from "react";
 import styled from "styled-components";
 import produce from "immer";
 import {useRecoilState, useSetRecoilState} from "recoil";
-import { vImportPrikeyPageX, vIsLoadingX } from "../atoms.js";
+import { vImportPrikeyPageX } from "../atoms.js";
 import { Input } from 'semantic-ui-react';
 import C from "../../background/constant";
 import {getPublicKeyFromSecretKey, isValidKey} from "../../background/utils";

@@ -1,8 +1,8 @@
-import React, {useCallback, useMemo} from "react";
+import React, {useMemo} from "react";
 import styled from "styled-components";
-import {produce, original} from "immer";
-import {useRecoilState, useSetRecoilState} from 'recoil';
-import {vRecentReqkeysData, vIsLoadingX, vErrorDataX} from '../atoms';
+import {produce} from "immer";
+import {useSetRecoilState} from 'recoil';
+import {vErrorDataX} from '../atoms';
 import Button from '@material-ui/core/Button';
 import C from "../../background/constant";
 

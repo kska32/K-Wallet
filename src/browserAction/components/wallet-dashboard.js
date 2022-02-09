@@ -5,7 +5,7 @@ import C from "../../background/constant";
 
 import {
     vNetworkIdX, vLockupX, vAccAddrX, vAccountDetailsX, 
-    vPageNumX, vIsLoadingX, vSidebarOpenedX
+    vPageNumX, vSidebarOpenedX, vKdaPriceX
 } from "../atoms.js";
 
 
@@ -611,20 +611,8 @@ export default function({visible}){
     const [interActionNo, setInterActionNo] = useRecoilState(vPageNumX);
     const [networkId, setNetworkId] = useRecoilState(vNetworkIdX);
     const [sidebarOpened, setSidebarOpened] = useRecoilState(vSidebarOpenedX);
-    const [kdaPrice, setKdaPrice] = useState(0.00);
-
-    useLayoutEffect(()=>{
-        chrome.runtime.onMessage.addListener((message,sender,sendResponse)=>{
-            let {type,key,value} = message;
-            switch(type){
-                case C.FMSG_KDA_PRICE_UPDATE: {
-                    setKdaPrice(value);
-                    break;
-                }
-            }
-            return true;
-        })
-    },[]);
+    const kdausdt = useRecoilValue(vKdaPriceX);
+    const [tid,setTid] = useState(0);
 
     const onNetworkChange = useCallback((v)=>{
         setNetworkId(v);
@@ -669,7 +657,7 @@ export default function({visible}){
                 </CircleButton>
             </InterActions>
             <Dashboard>
-                <AccountBalance accountAddr={accountAddr} balance={(accountDetails?.sum??0)} price={kdaPrice} visible={interActionNo === 8}/>
+                <AccountBalance accountAddr={accountAddr} balance={(accountDetails?.sum??0)} price={kdausdt} visible={interActionNo === 8}/>
                 <AccountDetails details={(accountDetails?.details??[])} accountAddr={accountAddr} visible={interActionNo === 9} />
                 <CoinSender visible={interActionNo === 10} />
                 <ProgressTracker visible={interActionNo === 11} />

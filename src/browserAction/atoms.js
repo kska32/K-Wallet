@@ -135,3 +135,5 @@ export const vDeleteDataX = selector(AtomHelper('deleteData'));
 export const vImportPrikeyPageX = selector(AtomHelper('importPriKeyPage'));
 
 export const vChangePasswordPageX = selector(AtomHelper('changePasswordPage'));
+
+export const vKdaPriceX = selector(AtomHelper('kdausdt'));

@@ -231,7 +231,7 @@ export function createReqLogger(reqKey, param={}, responds = [], success = false
     }
 }
 
-export function SendErrorMessage(behavior, totalstep, err, param = {}){
+export async function SendErrorMessage(behavior, totalstep, err, param = {}){
     chrome.runtime.sendMessage({
         type: C.FMSG_TRANSFER_PROGRESS, 
         key: null, 
@@ -241,4 +241,30 @@ export function SendErrorMessage(behavior, totalstep, err, param = {}){
             success: false, finished: false, lastError: ErrorDescription(err)
         }
     });
+
+    function ErrorDescription(err){
+        let errkey = '';
+        switch(err?.constructor.name){
+            case 'Error':
+            case 'TypeError': {
+                errkey = err.message;
+                break;
+            }
+            case 'Object': {
+                errkey = JSON.stringify(err);
+                break;
+            }
+            default: {
+                errkey = err;
+                break;
+            }
+        }
+
+        const descs = {
+            ['Failed to fetch']: 'No Network Connection',
+        }
+
+        return descs[errkey] || errkey;
+    }
 }
+

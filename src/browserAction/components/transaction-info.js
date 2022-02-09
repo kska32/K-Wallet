@@ -1,10 +1,9 @@
-import React, {useState, useEffect, useLayoutEffect, useCallback, useMemo} from "react";
+import React from "react";
 import styled from "styled-components";
 import produce from "immer";
-import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
-import {vPageNumX, vRecentReqkeysData, vIsLoadingX, vInfoDataX} from '../atoms';
+import {useSetRecoilState} from 'recoil';
+import {vInfoDataX} from '../atoms';
 import Button from '@material-ui/core/Button';
-import C from "../../background/constant";
 
 
 const Wrapper = styled.div`

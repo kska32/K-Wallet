@@ -34,7 +34,14 @@ chrome.runtime.onInstalled.addListener(async()=>{
 
  async function MessageListener(message, sender = null, sendResponse = ()=>{}){
     let {type} = message;
-    const setLoading = async (s = true) => await StateManager.set({isLoading: {opened: s}});
+    const setLoading = async (s = true) => {
+        return await StateManager.set({
+            isLoading: {
+                opened: s, 
+                timestamp: Date.now()
+            }
+        });
+    }
    
     switch(type){
         case C.MSG_GET_STATE: {
@@ -137,6 +144,11 @@ chrome.runtime.onInstalled.addListener(async()=>{
             await keypairsDB.getAll().then((res)=>{
                 sendResponse(res.length>0);
             })
+            return true;
+        }
+        case C.MSG_GET_KDA_PRICE:{
+            const res = await userOptionsDB.getItem('kda-price');
+            sendResponse(res?.value??0);
             return true;
         }
         case C.MSG_VALIDATE_CURRENT_PASSWORD: {
@@ -369,7 +381,7 @@ chrome.runtime.onInstalled.addListener(async()=>{
             return StateManager.set(state);
         }
         case C.MSG_JUST_TRANSFER: {
-            await StateManager.set({isLoading: {opened: true}});
+            await setLoading(true);
             const state = await StateManager.get();
             const dec = aesDecrypt(state.keypairHex.secretKey, state?.password??'');
 
@@ -516,10 +528,8 @@ async function getAccountDetails(accountId, networkId){
 chrome.runtime.onMessage.addListener(function(msg,sender,sendResponse){
     //console.log("message.type:", msg.type, ", message.content:", msg);
     MessageListener(msg, sender, sendResponse).catch((err)=>{
-        console.error("MessageListener - Error: ", err);
-        let state = {};
-        state.isLoading = {opened: false, text: null};
-        StateManager.set(state);
+        //console.error("MessageListener - Error: ", err);
+        StateManager.set({isLoading: {opened: false, text: null}});
     })
     return true;
 });

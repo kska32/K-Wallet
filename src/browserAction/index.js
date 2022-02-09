@@ -23,6 +23,7 @@ import circlesSvg from "./images/circles.svg";
 import ErrorOutlineOutlinedIcon from '@material-ui/icons/ErrorOutlineOutlined';
 import CloseOutlinedIcon from '@material-ui/icons/CloseOutlined';
 
+const LOADING_BOX_TIMEOUT = 6000;
 
 const Wrapper = styled.div`
     position: relative;
@@ -32,7 +33,7 @@ const Wrapper = styled.div`
     box-sizing: border-box;
 `;
 
-const LoadingBox = styled.span`
+const LoadingBoxStyle = styled.span`
     position: fixed !important;
     width: 100%;
     height: 100%;
@@ -91,6 +92,31 @@ const LoadingBox = styled.span`
         }
     }
 `;
+
+const LoadingBox = ({isLoading, loadingText, timestamp}) => {
+    const [tid,setTid] = useState(0);
+
+    useLayoutEffect(()=>{
+        const fn = ()=>{
+            chrome.storage.local.set({
+                isLoading:{
+                    opened:false, 
+                    text:null, 
+                    timestamp:null
+                }
+            });
+        }
+        if(!!timestamp){
+            setTid((t)=>{
+                clearTimeout(t);
+                return setTimeout(fn, LOADING_BOX_TIMEOUT);
+            });
+        }
+        return ()=>setTid(t=>clearTimeout(t));
+    },[timestamp])
+
+    return <LoadingBoxStyle isLoading={isLoading} loadingText={loadingText} />
+}
 
 const ModalStyle = styled.div`
     position: fixed;
@@ -377,7 +403,6 @@ const DeleteModal = (props) => {
     const [key, setKey] = useState('');
     const [invalidKey, setInvalidKey] = useState(null);
     const [tid, setTid] = useState(0);
-    const [isLoading, setLoading] = useRecoilState(vIsLoadingX);
 
     const close = useCallback(()=>{
         setDeleteData(produce((s)=>{
@@ -446,7 +471,7 @@ export const Main = (props)=>{
     const [pageNum, setPageNum] = useRecoilState(vPageNumX);
     const hasAccount = useRecoilValue(vHasAccount);
     const password = useRecoilValue(vPasswordX);
-    const [isLoading, setLoading] = useRecoilState(vIsLoadingX);
+    const [isLoading,setLoading] = useRecoilState(vIsLoadingX);
     const setGErrData = useSetRecoilState(vGlobalErrorDataX);
     const setReceiverAddrList = useSetRecoilState(vReceiverAddrListX);
 
@@ -465,7 +490,11 @@ export const Main = (props)=>{
                             s.opened = true;
                             s.message = msg.value.lastError;
                         }));
-                        setLoading({opened: false, text: null});
+                        setLoading({
+                            opened: false, 
+                            text: null,
+                            timestamp: null
+                        });
                     }
                     break;
                 }
@@ -474,7 +503,6 @@ export const Main = (props)=>{
                     break;
                 }
             }
-
             return true;
         });
     }, []);
@@ -495,7 +523,11 @@ export const Main = (props)=>{
         {pageNum >= 6 && pageNum <= 7 && <ImportWalletStepper />}
         <WalletDashboard visible={pageNum >= 8}/>
         <CreateWalletUnlock visible={pageNum === 5}/>
-        <LoadingBox isLoading={isLoading.opened} loadingText={isLoading.text}/>
+        <LoadingBox 
+            isLoading={isLoading.opened} 
+            loadingText={isLoading.text} 
+            timestamp={isLoading?.timestamp??null}
+        />
         <AlertModal />
         <ConfirmModal />
         <DeleteModal />
