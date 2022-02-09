@@ -10,6 +10,10 @@
 - Track transfer transactions throughout the process.
 - All user's data stored into user's browser storage and indexeddb.
 - 100% open source project.
+###
+#
+Donate:
+k:b8559cae02d291fbff2425511b040aaae606bd8e5edf6a2c16fe7529f6ab77f2
 #
 #
 <img src="./readme-images/k1.png" width='700' height='500'/>
