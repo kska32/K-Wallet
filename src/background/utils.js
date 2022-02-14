@@ -145,9 +145,9 @@ export function runtimeSendMessage(message){
     });
 }
 
-export function delay(t=1000){
+export function delay(t=1000, ret=true){
     return new Promise((resolve)=>{
-        setTimeout(()=>resolve(),t);
+        setTimeout(()=>resolve(ret),t);
     })
 }
 

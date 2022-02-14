@@ -1,4 +1,6 @@
 import Pact from 'pact-lang-api';
+import {delay} from "./utils";
+
 
 export default function({   
     senderAccountAddr,
@@ -62,7 +64,7 @@ export default function({
         const cmds = [
             {
                 keyPairs: [],
-                pactCode: `(coin.create-account ${JSON.stringify(keys[0])} (read-keyset 'account-keyset))`,
+                pactCode: `(${tokenAddress}.create-account ${JSON.stringify(keys[0])} (read-keyset 'account-keyset))`,
                 networkId: networkId,
                 envData: {
                     "account-keyset": {
@@ -125,7 +127,7 @@ export default function({
                             args: [senderAccountAddr, receiverAccountAddr, Number(formatAmount(amount))]
                         },
                         {
-                            name: `coin.GAS`,
+                            name: `${tokenAddress}.GAS`,
                             args: []
                         }
                     ]
@@ -225,15 +227,20 @@ export default function({
 
     const getAcctDetails = async (accountAddr, chainId) => {
             accountAddr = accountAddr?.toLowerCase();
-            let data = await Pact.fetch.local({
-                pactCode: `(${tokenAddress}.details ${JSON.stringify(accountAddr)})`,
-                meta: Pact.lang.mkMeta("", String(chainId), gasPrice, gasLimit, ttl, creationTime()),
-            }, hostAddrCp(chainId));
-                    
-            if (data?.result?.status === "success"){
-                return {...data.result.data, chainId}
-            } else {
-                return { account: null, guard: null, balance: 0, chainId: chainId }
+            let data = await Promise.race([
+                Pact.fetch.local({
+                    pactCode: `(${tokenAddress}.details ${JSON.stringify(accountAddr)})`,
+                    meta: Pact.lang.mkMeta("", String(chainId), gasPrice, gasLimit, ttl, creationTime()),
+                }, hostAddrCp(chainId)), 
+                delay(3000, {result: {status: 'timeout'}})
+            ]);
+            switch(data?.result?.status){
+                case 'success':
+                    return { ...data.result.data, chainId };
+                case 'timeout':
+                    return { account: null, guard: null, balance: -1, chainId };
+                default:
+                    return { account: null, guard: null, balance: 0, chainId };
             }
     }
 

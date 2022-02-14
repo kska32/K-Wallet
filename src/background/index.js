@@ -24,7 +24,6 @@ InitAlarmNode();
 KdaPriceTick();
 AutoLocker();
 
-
 chrome.runtime.onInstalled.addListener(async()=>{
     let state = deepCopy(BackgroundState);
     state.networkId = (await userOptionsDB.getItem('networkId'))?.networkId??state.networkId;
@@ -512,7 +511,7 @@ async function createKeypairList(){
 async function getAccountDetails(accountId, networkId){
     try{
         const details = await Transfer.getAcctDetailsForAllChains(accountId, networkId);
-        let sum = details.reduce((a,c,i)=>a + (c?.balance??0), 0); 
+        let sum = details.reduce((a,c,i)=>a + Math.max((c?.balance??0),0), 0); 
         let nullChainIds = details.filter(v => v.account === null).map(v => v.chainId);
         let accountDetails = {
             details, sum, nullChainIds,

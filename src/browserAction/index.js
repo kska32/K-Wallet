@@ -23,7 +23,7 @@ import circlesSvg from "./images/circles.svg";
 import ErrorOutlineOutlinedIcon from '@material-ui/icons/ErrorOutlineOutlined';
 import CloseOutlinedIcon from '@material-ui/icons/CloseOutlined';
 
-const LOADING_BOX_TIMEOUT = 6000;
+const LOADING_BOX_TIMEOUT = 7 * 1000;
 
 const Wrapper = styled.div`
     position: relative;

@@ -131,12 +131,6 @@ export default function AccountDetails({details=[], accountAddr='', visible}){
         return (v?.guard?.keys??[]).includes(accountAddr.split(":")[1]) 
     },[accountAddr]);
 
-    const copyToClipboard = useCallback((text)=>{
-        navigator.clipboard.writeText(text).then(()=>{
-            //setCopied(true)
-        });
-    }, []);
-
     const detailsItemEx = useCallback((ix,data)=>{
         let result = {
             ['chain']: null,
@@ -168,7 +162,7 @@ export default function AccountDetails({details=[], accountAddr='', visible}){
                         <span>{amOwner(v) && <CopiesButton style={{position:'absolute',top:'2px', left:'10px'}} nobg minisize text={detailsItemEx(i,v)}/> }{String(i).padStart(2,'0')}</span>
                         <span>{amOwner(v) ? '✓' : sym}</span>
                         <span title={JSON.stringify(v?.guard?.keys)}>{v?.guard?.keys?.length}{v?.guard?.keys?.length>0 ? ',' : ''}{v?.guard?.pred??sym}</span>
-                        <span>{v?.balance??sym}</span>
+                        <span>{v?.balance > -1 ? v.balance : 'TIMEOUT'}</span>
                     </div>
                 })
             }
