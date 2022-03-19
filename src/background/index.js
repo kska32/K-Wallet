@@ -4,7 +4,7 @@
 import {keypairsDB, reqkeysDB, accountAddrsDB, userOptionsDB} from "./localdb";
 import C,{BackgroundState} from "./constant";
 import restApi from "./rest.api";
-import InitAlarmNode,{KdaPriceTick, AutoLocker} from "./alarms-node";
+import InitAlarmNode,{KdaPriceTick, AutoLocker, BtcPriceTraker} from "./alarms-node";
 
 import {
     sha512,
@@ -23,6 +23,7 @@ const deepCopy = o => JSON.parse(JSON.stringify(o));
 InitAlarmNode();
 KdaPriceTick();
 AutoLocker();
+BtcPriceTraker();
 
 chrome.runtime.onInstalled.addListener(async()=>{
     let state = deepCopy(BackgroundState);

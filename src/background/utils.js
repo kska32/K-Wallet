@@ -168,10 +168,18 @@ export const StateManager = (()=>{
 })();
 
 export async function createAlarm(alarmName, when = 0, interval = 3, handler = () => {}){
-    for(let i=1; i <= 60/interval; i++){
-        chrome.alarms.create(`${alarmName}+${i}`, {
-            when: Date.now() + 1000 * when + 1000 * interval * i,
-            periodInMinutes: 1
+
+    if(interval <= 60){
+        for(let i=0; i < 60/interval; i++){
+            chrome.alarms.create(`${alarmName}+${i}`, {
+                when: Date.now() + 1000 * when + 1000 * interval * i,
+                periodInMinutes: 1
+            });
+        }
+    }else{
+        chrome.alarms.create(`${alarmName}+${'x'}`, {
+            when: Date.now() + 1000 * when,
+            periodInMinutes: interval / 60
         });
     }
 

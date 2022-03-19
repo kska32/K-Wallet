@@ -20,12 +20,28 @@ export async function KdaPriceTick(){
     createAlarm('kdapriceTick', 0, 5, async(name, alarmName)=>{
         try{
             let kucoin = new ccxt.kucoin();
-            let res = await kucoin.fetchTicker('KDA/USDT');
-            await StateManager.set({kdausdt: res?.last??0});
+            let kucoinRes = await kucoin.fetchTicker('KDA/USDT');
+            await StateManager.set({kdausdt: kucoinRes?.last??0});
         }catch(err){
-            console.error(err);
+            //console.error(err);
         }
     })
+}
+
+
+export async function BtcPriceTraker(){
+    /*
+    createAlarm('BtcPriceTracker', 0, 60*60, async()=>{
+        try{
+            let binance = new ccxt.binance();
+            let binanceRes = await binance.fetchTicker('BTC/USDT');
+
+            console.log(binanceRes?.last??0, Date());
+        }catch(err){
+            //console.error(err);
+        }
+    })
+    */
 }
 
 export async function AutoLocker(){
@@ -75,9 +91,8 @@ export async function AutoLocker(){
 
 
 
-
-
 export default async function initNode(){
+    await chrome.alarms.clearAll();
     createAlarmNode([
         {
             name: 'senderReqkeyAlarm',
