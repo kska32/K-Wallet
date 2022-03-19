@@ -254,6 +254,12 @@ export default function({
         })
     }
 
+    const postV1SignResponse = async function(keyPairs, nonce, pactCode, envData, meta, networkId){
+        let p = arguments.slice();
+        return await Pact.api.prepareExecCmd(...p);
+
+    }
+
 
     return {
         initAccount,
@@ -264,7 +270,8 @@ export default function({
         fetchProof,
         continueTransfer,
         getAcctDetails,
-        getFullAcctDetails
+        getFullAcctDetails,
+        postV1SignResponse
     }
 
 }
