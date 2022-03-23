@@ -1,28 +1,10 @@
 
 const C = {
     MAX_GAS_PRICE: 1e-5,
-    MIN_GAS_PRICE: 1e-9,
+    MIN_GAS_PRICE: 1e-8,
 
     MAX_GAS_LIMIT: 1e5,
     MIN_GAS_LIMIT: 400,
-
-    MAX_X_GAS_PRICE: {
-        testnet: 1e-9,
-        mainnet: 1e-8 
-    },
-    MIN_X_GAS_PRICE: {
-        testnet: 1e-12,
-        mainnet: 1e-11 
-    },
-
-    MAX_X_GAS_LIMIT: {
-        testnet: 400,
-        mainnet: 400
-    },
-    MIN_X_GAS_LIMIT: {
-        testnet: 100,
-        mainnet: 100 
-    },
 
     MIN_AMOUNT: 1e-6,
 

@@ -1,5 +1,9 @@
-import {createAlarm, createReqLogger, StateManager} from "./utils";
-import {senderReqkeyAlarmDB, receiverReqkeyAlarmDB, proofAlarmDB, continueTransferAlarmDB, userOptionsDB} from './localdb';
+import {createAlarm, createReqLogger, StateManager, aesDecrypt} from "./utils";
+import {
+    senderReqkeyAlarmDB, receiverReqkeyAlarmDB, 
+    proofAlarmDB, continueTransferAlarmDB, 
+    userOptionsDB, keypairsDB
+} from './localdb';
 import createTransfer from "./transfer";
 import * as ccxt from "ccxt";
 import C,{BackgroundState} from "./constant";
@@ -183,9 +187,20 @@ export default async function initNode(){
                     const receiverChainId = param.receiverChainId;
                     const crlogger = createReqLogger(senderReqkey, param, responds);
 
+                    const kpRes = await keypairsDB.getItem(param.senderAccountAddr.slice(2));
+                    let senderAccountPrivKey = null;
+                    
+                    if(kpRes !== undefined){
+                        const state = await StateManager.get();
+                        const dec = aesDecrypt(kpRes.enc, state?.password??'');
+                        senderAccountPrivKey = JSON.parse(dec)[2];
+                    }else{
+                        throw `The Public key [${param.senderAccountAddr}] not founded!`;
+                    }
+
                     try{
                         if(count > maxCount) throw "TIMEOUT";
-                        const cct = createTransfer(param);
+                        const cct = createTransfer({...param, senderAccountPrivKey});
                         let receiverReqkeyResult = await cct.continueTransfer(senderReqkey, proof, 1, receiverChainId);
                         const newResponds = [...responds, receiverReqkeyResult];
                         await crlogger.set(newResponds);

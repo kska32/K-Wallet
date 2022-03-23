@@ -167,29 +167,27 @@ chrome.runtime.onInstalled.addListener(async()=>{
             if(currentPassword && newPassword.length >= 8){
                 await keypairsDB.getAll().then(async(responds)=>{
                     const selectedAccIndex = responds.findIndex(o=>o.selected===true);
+
                     const res = responds[selectedAccIndex];
                     if(res !== undefined){
                         const sha512pwd = sha512(currentPassword);
                         let state = await StateManager.get();
                         if(sha512pwd === state.password){
-                            const dec = aesDecrypt(res.enc, sha512pwd);
-                            const decArr = JSON.parse(dec);
-                            if(decArr[1] === state.keypairHex.publicKey){
+                            await Promise.all(responds.map((kpi, ix)=>{
+                                const dec = aesDecrypt(kpi.enc, sha512pwd);
+                                const decArr = JSON.parse(dec);
                                 const newPassHash = sha512(newPassword);
                                 const enc = aesEncrypt(JSON.stringify([
                                     newPassHash,
                                     decArr[1],
                                     decArr[2]
                                 ]), newPassHash);
-                                keypairsDB.setItem(decArr[1], {enc, selected: true});
-                                state = {...deepCopy(BackgroundState), pageNum: 5, networkId: state.networkId};
-                                return StateManager.set(state);
-                            }else{
-                                return sendResponse({
-                                    success: false,
-                                     error: "Invalid PublicKey."
-                                });
-                            }
+                                if(selectedAccIndex === ix){
+                                    state = {...deepCopy(BackgroundState), pageNum: 5, networkId: state.networkId};
+                                }
+                                keypairsDB.setItem(decArr[1], {enc, selected: selectedAccIndex === ix });
+                            }));
+                            return StateManager.set(state);
                         }else{
                             return sendResponse({
                                 success: false, 

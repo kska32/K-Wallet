@@ -31,7 +31,7 @@
     "mime-types": "^2.1.30",
     "moment": "^2.29.1",
     "node-polyfill-webpack-plugin": "^1.1.0",
-    "pact-lang-api": "^4.2.0",
+    "pact-lang-api": "^4.3.3",
     "password-validator": "^5.2.1",
     "qrcode.react": "^1.0.1",
     "react": "^17.0.2",

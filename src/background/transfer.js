@@ -43,22 +43,10 @@ export default function({
     ttl = Number(ttl);
 
     let gasStationAccount = "free-x-chain-gas";
-    const clears = [];
-
-    if(networkId.includes('testnet')){
-        xGasPrice = 0.000000001;
-    }
-
-    const clearAllIntervals = () => {
-        while(clears.length > 0){
-            clears.pop()();
-        }
-    }
 
     const creationTime = () => (Math.round(Date.now() / 1000) - 15);
     const getPubKey = (accAddr="") => (accAddr.toLowerCase().includes("k:") ? accAddr.split(":")[1] : accAddr);
     const formatAmount = (amount) => (Math.floor(amount * 1e8) / 1e8).toFixed(8);
-
 
     const initAccount = async (chainId = 0, keys = [senderAccountAddr], pred = "keys-all")=>{
         const cmds = [
@@ -202,7 +190,7 @@ export default function({
         targetChainId
     ) => {
             const meta = Pact.lang.mkMeta(
-                `${gasStationAccount}`, 
+                networkId.includes('testnet') ? senderAccountAddr : gasStationAccount, 
                 String(targetChainId), 
                 xGasPrice, 
                 xGasLimit, 
@@ -216,7 +204,10 @@ export default function({
                 proof, 
                 pactId: reqKey, 
                 rollback: false, 
-                keyPairs: [],
+                keyPairs: [{
+                    publicKey: getPubKey(senderAccountAddr),
+                    secretKey: senderAccountPrivKey
+                }],
                 step,
                 networkId
             }, hostAddrCp(targetChainId));
