@@ -193,8 +193,8 @@ export default async function initNode(){
                     try{
                         if(kpRes !== undefined){
                             const state = await StateManager.get();
-                            if(state.password !== undefined){
-                                const dec = aesDecrypt(kpRes.enc, state?.password??'');
+                            if(!!state.password){
+                                const dec = aesDecrypt(kpRes.enc, state.password);
                                 senderAccountPrivKey = JSON.parse(dec)[2];
                             }else{
                                 throw `Unable to continue transfer after locked out!`;
