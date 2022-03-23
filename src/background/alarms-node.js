@@ -53,7 +53,7 @@ export async function AutoLocker(){
     createAlarm('AutoLocker', 0, 5, async(name, alarmName)=>{
         try{
             const name = 'lockupTime';
-            const LIMITTIME = 1000 * 60 * 8;
+            const LIMITTIME = 1000 * 60 * 15;
             let lockupTime = await userOptionsDB.getItem(name);
             if(lockupTime === undefined){
                 await userOptionsDB.upsertItem(name, {endTime: Date.now() + LIMITTIME, limitTime: LIMITTIME});
@@ -190,15 +190,18 @@ export default async function initNode(){
                     const kpRes = await keypairsDB.getItem(param.senderAccountAddr.slice(2));
                     let senderAccountPrivKey = null;
                     
-                    if(kpRes !== undefined){
-                        const state = await StateManager.get();
-                        const dec = aesDecrypt(kpRes.enc, state?.password??'');
-                        senderAccountPrivKey = JSON.parse(dec)[2];
-                    }else{
-                        throw `The Public key [${param.senderAccountAddr}] not founded!`;
-                    }
-
                     try{
+                        if(kpRes !== undefined){
+                            const state = await StateManager.get();
+                            if(state.password !== undefined){
+                                const dec = aesDecrypt(kpRes.enc, state?.password??'');
+                                senderAccountPrivKey = JSON.parse(dec)[2];
+                            }else{
+                                throw `Unable to continue transfer after locked out!`;
+                            }
+                        }else{
+                            throw `The Public key [${param.senderAccountAddr}] not founded!`;
+                        }
                         if(count > maxCount) throw "TIMEOUT";
                         const cct = createTransfer({...param, senderAccountPrivKey});
                         let receiverReqkeyResult = await cct.continueTransfer(senderReqkey, proof, 1, receiverChainId);
