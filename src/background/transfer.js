@@ -27,7 +27,6 @@ export default function({
             throw "The [networkId] is inccorect";
         }
     })(networkId);
-    
 
     amount = String(amount);
     senderAccountAddr = senderAccountAddr?.toLowerCase()?.trim();
@@ -216,27 +215,29 @@ export default function({
             return res;
     }
 
-    const getAcctDetails = async (accountAddr, chainId) => {
-            accountAddr = accountAddr?.toLowerCase();
-            let data = await Promise.race([
-                Pact.fetch.local({
-                    pactCode: `(${tokenAddress}.details ${JSON.stringify(accountAddr)})`,
-                    meta: Pact.lang.mkMeta("", String(chainId), gasPrice, gasLimit, ttl, creationTime()),
-                }, hostAddrCp(chainId)), 
-                delay(3000, {result: {status: 'timeout'}})
-            ]);
-            switch(data?.result?.status){
-                case 'success':
-                    return { ...data.result.data, chainId };
-                case 'timeout':
-                    return { account: null, guard: null, balance: -1, chainId };
-                default:
-                    return { account: null, guard: null, balance: 0, chainId };
-            }
+    const getAcctDetails = async (accountAddr = senderAccountAddr, chainId = 0, retry = 5) => {
+        accountAddr = accountAddr?.toLowerCase();
+        let data = await Promise.race([
+            Pact.fetch.local({
+                pactCode: `(${tokenAddress}.details ${JSON.stringify(accountAddr)})`,
+                meta: Pact.lang.mkMeta("", String(chainId), gasPrice, gasLimit, ttl, creationTime()),
+            }, hostAddrCp(chainId)), 
+            delay(3000, {result: {status: 'timeout'}})
+        ]);
+        switch(data?.result?.status){
+            case 'success':
+                return { ...data.result.data, chainId };
+            case 'timeout':
+                const fn = () => getAcctDetails(accountAddr, chainId, retry-1);
+                const tn = { account: null, guard: null, balance: -1, chainId };
+                return retry !== 0 ? await fn() : tn;
+            default:
+                return { account: null, guard: null, balance: 0, chainId };
+        }
     }
 
     const getFullAcctDetails = async (
-        accountAddr
+        accountAddr = senderAccountAddr
     ) => {
         return Promise.all((new Array(20)).fill(0).map((v,i)=>{
                 return getAcctDetails(accountAddr, i)
@@ -245,10 +246,26 @@ export default function({
         })
     }
 
-    const postV1SignResponse = async function(keyPairs, nonce, pactCode, envData, meta, networkId){
-        let p = arguments.slice();
-        return await Pact.api.prepareExecCmd(...p);
+    const isNumber = v => v?.constructor?.name === 'Number';
+    const isObject = v => v?.constructor?.name === 'Object';
+    const isArray = v => v?.constructor?.name === 'Array';
 
+    const getTotalBalance = async (accountAddr = senderAccountAddr) => {
+      let balances = await getFullAcctDetails(accountAddr);
+      if(balances.length === 20){
+        return balances.reduce((a,c,i)=>{
+            const vbalance = isObject(c.balance) ? Number(c.balance.decimal) : c.balance;
+            a.balances += vbalance;
+            a.details['chain-id-' + c.chainId] = {...c, balance: vbalance};
+            return a;
+        },{
+          'address': accountAddr,
+          'balances': 0,
+          'details': {}
+        })
+      }
+
+      return -1;
     }
 
 
@@ -262,9 +279,8 @@ export default function({
         continueTransfer,
         getAcctDetails,
         getFullAcctDetails,
-        postV1SignResponse
+        getTotalBalance
     }
-
 }
 
 
