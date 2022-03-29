@@ -234,6 +234,7 @@ export default function({
             case 'success':
                 return { ...data.result.data, chainId };
             case 'unavailable':
+                await delay(1000);
             case 'timeout':
                 const fn = () => getAcctDetails(accountAddr, chainId, retry-1);
                 const tn = { account: null, guard: null, balance: -1, chainId };
