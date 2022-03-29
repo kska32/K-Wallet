@@ -47,6 +47,11 @@ export default function({
     const getPubKey = (accAddr="") => (accAddr.toLowerCase().includes("k:") ? accAddr.split(":")[1] : accAddr);
     const formatAmount = (amount) => (Math.floor(amount * 1e8) / 1e8).toFixed(8);
 
+    const isNumber = v => v?.constructor?.name === 'Number';
+    const isObject = v => v?.constructor?.name === 'Object';
+    const isArray = v => v?.constructor?.name === 'Array';
+    const isString = v => v?.constructor?.name === 'String';
+
     const initAccount = async (chainId = 0, keys = [senderAccountAddr], pred = "keys-all")=>{
         const cmds = [
             {
@@ -221,12 +226,14 @@ export default function({
             Pact.fetch.local({
                 pactCode: `(${tokenAddress}.details ${JSON.stringify(accountAddr)})`,
                 meta: Pact.lang.mkMeta("", String(chainId), gasPrice, gasLimit, ttl, creationTime()),
-            }, hostAddrCp(chainId)), 
+            }, hostAddrCp(chainId)).then((r)=>(isString(r) ? {result: {status: 'unavailable'}} : r)),
             delay(3000, {result: {status: 'timeout'}})
         ]);
+
         switch(data?.result?.status){
             case 'success':
                 return { ...data.result.data, chainId };
+            case 'unavailable':
             case 'timeout':
                 const fn = () => getAcctDetails(accountAddr, chainId, retry-1);
                 const tn = { account: null, guard: null, balance: -1, chainId };
@@ -245,10 +252,6 @@ export default function({
             throw err;
         })
     }
-
-    const isNumber = v => v?.constructor?.name === 'Number';
-    const isObject = v => v?.constructor?.name === 'Object';
-    const isArray = v => v?.constructor?.name === 'Array';
 
     const getTotalBalance = async (accountAddr = senderAccountAddr) => {
       let balances = await getFullAcctDetails(accountAddr);
