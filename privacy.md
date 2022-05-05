@@ -1,11 +1,18 @@
-# Private Policy for K:Wallet
+# Private Policy for k:wallet
 
+<p>
 ※ This app does not collect any user data, all user data is stored on the user's local computer, giving the user complete control over their personal data.
 
-1. We do not track any usage of the extension - that includes searches, filters, tabs, windows, popup opens, etc
-2. We do not track any websites, website usage, etc
-3. We do not transfer any data to any 3rd party servers
-4. The only data that we store is your session storage data if you use the "saved windows feature" : You save this data to your local browser storage, so you can recover the saved windows at a later point in time. We never touch or see this data. This data is exclusively stored inside your browser.
-5. The same goes for your settings - your settings are saved solely inside your browser.
+※ All user data is saved in the browser's indexeddb and local storage.
 
-Feel free to contact us if you got any questions or concerns about data privacy, we will be happy to help.
+※ Feel free to contact us if you got any questions or concerns about data privacy, we will be happy to help.
+</p>
+
+<style>
+h1{
+    font-weight: bold;
+}
+p{
+    font-size: 20px;
+}
+</style>
