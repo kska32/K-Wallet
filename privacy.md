@@ -8,11 +8,3 @@
 ※ Feel free to contact us if you got any questions or concerns about data privacy, we will be happy to help.
 </p>
 
-<style>
-h1{
-    font-weight: bold;
-}
-p{
-    font-size: 20px;
-}
-</style>
