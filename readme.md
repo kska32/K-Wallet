@@ -16,7 +16,7 @@ Donate:
 k:b8559cae02d291fbff2425511b040aaae606bd8e5edf6a2c16fe7529f6ab77f2
 #
 #
-<img src="./readme-images/k1.png" width='80%'/>
-<img src="./readme-images/k2.png" width='80%'/>
-<img src="./readme-images/k3.png" width='80%'/>
-<img src="./readme-images/k4.png" width='80%'/>
+<img src="./readme-images/k1.png" width='100%'/>
+<img src="./readme-images/k2.png" width='100%'/>
+<img src="./readme-images/k3.png" width='100%'/>
+<img src="./readme-images/k4.png" width='100%'/>
