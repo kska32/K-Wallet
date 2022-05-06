@@ -1,4 +1,4 @@
-# Private Policy for k:wallet
+# Privacy Policy for k:wallet
 
 <p>
 ※ This app does not collect any user data, all user data is stored on the user's local computer.
