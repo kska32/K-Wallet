@@ -14,5 +14,5 @@
 ###
 
 #
-<img src="./readme-images/k-wallet-1280x800.png" width='80%' />
+<img src="./readme-images/k-wallet-1280x800.png" width='100%' />
 
