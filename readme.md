@@ -12,7 +12,8 @@
 - Easily interacts with dapp
 - Dark mode, real-time market price ....
 ###
-
+Donate this project:<br/>
+k:b8559cae02d291fbff2425511b040aaae606bd8e5edf6a2c16fe7529f6ab77f2
 #
 <img src="./readme-images/k-wallet-1280x800.png" width='100%' />
 
